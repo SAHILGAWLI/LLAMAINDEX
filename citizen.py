@@ -63,7 +63,7 @@ context_prompt = (
 
 # 4. Create the chat engine in 'condense_plus_context' mode
 chat_engine = index.as_chat_engine(
-    chat_mode="condense_plus_context",
+    chat_mode="condense_question",
     memory=memory,
     llm=llm,
     context_prompt=context_prompt,
