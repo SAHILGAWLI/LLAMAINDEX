@@ -57,6 +57,19 @@ from threading import Lock
 chat_memories: Dict[str, ChatMemoryBuffer] = {}
 chat_memories_lock = Lock()
 
+def get_citizen_chat_engine(session_id: str):
+    with chat_memories_lock:
+        if session_id not in chat_memories:
+            chat_memories[session_id] = ChatMemoryBuffer.from_defaults(token_limit=3900)
+        memory = chat_memories[session_id]
+    return index.as_chat_engine(
+        chat_mode="condense_question",
+        memory=memory,
+        llm=llm,
+        context_prompt=context_prompt,
+        verbose=False,
+    )
+
 def get_chat_engine(session_id: str):
     with chat_memories_lock:
         if session_id not in chat_memories:
@@ -87,6 +100,13 @@ class ChatRequest(BaseModel):
     session_id: str
     message: str
 
+class CitizenChatRequest(BaseModel):
+    session_id: str
+    message: str
+
+class CitizenChatResponse(BaseModel):
+    answer: str
+
 class ChatResponse(BaseModel):
     answer: str
 
@@ -107,6 +127,32 @@ def chat_endpoint(request: ChatRequest):
         return ChatResponse(answer=str(response))
     except Exception as e:
         logging.error(f"Error during chat: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+from fastapi.responses import StreamingResponse
+
+@app.post("/citizen_chat", response_model=CitizenChatResponse)
+def citizen_chat_endpoint(request: CitizenChatRequest):
+    try:
+        chat_engine = get_citizen_chat_engine(request.session_id)
+        response = chat_engine.chat(request.message)
+        return CitizenChatResponse(answer=str(response))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+# Streaming endpoint for citizen chat
+# Usage: POST /citizen_chat_stream with JSON {"session_id": ..., "message": ...}
+# Returns a streaming text/plain response with tokens as they are generated.
+@app.post("/citizen_chat_stream")
+def citizen_chat_stream_endpoint(request: CitizenChatRequest):
+    try:
+        chat_engine = get_citizen_chat_engine(request.session_id)
+        response = chat_engine.stream_chat(request.message)
+        def token_stream():
+            for token in response.response_gen:
+                yield token
+        return StreamingResponse(token_stream(), media_type="text/plain")
+    except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.get("/")

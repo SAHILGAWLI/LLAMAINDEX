@@ -1,0 +1,9 @@
+fastapi
+uvicorn
+python-dotenv
+openai
+pinecone-client
+llama-index
+llama-index-vector-stores-pinecone
+llama-index-llms-openai
+pydantic

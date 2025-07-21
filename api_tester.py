@@ -50,3 +50,42 @@ if st.button("Reset Chat Session"):
     st.session_state["session_id"] = str(uuid.uuid4())
     st.session_state["chat_history"] = []
     st.success("Chat session reset!")
+
+# ------------------------------
+# Citizen Chat (condense_question mode)
+# ------------------------------
+st.header("Citizen Chat (POST /citizen_chat, condense_question mode)")
+if "citizen_session_id" not in st.session_state:
+    st.session_state["citizen_session_id"] = str(uuid.uuid4())
+if "citizen_chat_history" not in st.session_state:
+    st.session_state["citizen_chat_history"] = []
+
+def add_to_citizen_history(role, text):
+    st.session_state["citizen_chat_history"].append({"role": role, "text": text})
+
+# Display citizen chat history
+for msg in st.session_state["citizen_chat_history"]:
+    if msg["role"] == "user":
+        st.markdown(f"**You (Citizen):** {msg['text']}")
+    else:
+        st.markdown(f"**Bot (Condense Q):** {msg['text']}")
+
+citizen_chat_question = st.text_input("Your message (citizen chat):", key="citizen_multi")
+if st.button("Send (Citizen Chat)"):
+    if citizen_chat_question.strip():
+        add_to_citizen_history("user", citizen_chat_question)
+        try:
+            resp = requests.post(f"{api_url}/citizen_chat", json={
+                "session_id": st.session_state["citizen_session_id"],
+                "message": citizen_chat_question
+            })
+            answer = resp.json().get("answer", resp.text)
+            add_to_citizen_history("bot", answer)
+        except Exception as e:
+            st.error(f"Error: {e}")
+        st.rerun()
+
+if st.button("Reset Citizen Chat Session"):
+    st.session_state["citizen_session_id"] = str(uuid.uuid4())
+    st.session_state["citizen_chat_history"] = []
+    st.success("Citizen chat session reset!")

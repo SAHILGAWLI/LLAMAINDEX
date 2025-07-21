@@ -71,14 +71,31 @@ chat_engine = index.as_chat_engine(
 )
 
 print("Type 'exit' to quit.")
+print("Type 'exit' to quit. Type '/stream' to enter streaming mode, '/normal' to return to normal mode.")
+streaming_mode = False
 while True:
     try:
         user_query = input("Enter your question: ")
         if user_query.strip().lower() == 'exit':
             print("Exiting. Goodbye!")
             break
-        response = chat_engine.chat(user_query)
-        print(response)
+        elif user_query.strip().lower() == '/stream':
+            streaming_mode = True
+            print("[Streaming mode enabled]")
+            continue
+        elif user_query.strip().lower() == '/normal':
+            streaming_mode = False
+            print("[Normal mode enabled]")
+            continue
+        if streaming_mode:
+            response = chat_engine.stream_chat(user_query)
+            print("[Streaming response]:", end=" ")
+            for token in response.response_gen:
+                print(token, end="", flush=True)
+            print()
+        else:
+            response = chat_engine.chat(user_query)
+            print(response)
     except KeyboardInterrupt:
         print("\nExiting. Goodbye!")
         break
