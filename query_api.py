@@ -99,7 +99,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 # ---------------------------------------------
-app = FastAPI()
 
 class QueryRequest(BaseModel):
     question: str
