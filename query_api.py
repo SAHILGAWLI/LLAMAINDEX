@@ -14,6 +14,7 @@ from llama_index.llms.openai import OpenAI
 from llama_index.core.memory import ChatMemoryBuffer
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
+from fastapi.middleware.cors import CORSMiddleware
 
 # ---------------------------------------------
 # Environment Variables and Logging
@@ -87,6 +88,16 @@ query_engine = index.as_query_engine()
 
 # ---------------------------------------------
 # FastAPI App
+app = FastAPI()
+
+# Add CORS middleware for browser access
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Change to your frontend URL in production
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 # ---------------------------------------------
 app = FastAPI()
 
