@@ -6,7 +6,7 @@ import sys
 import logging
 from dotenv import load_dotenv
 import openai
-import os
+import pinecone
 from pinecone import Pinecone, ServerlessSpec
 from llama_index.vector_stores.pinecone import PineconeVectorStore
 from llama_index.core import VectorStoreIndex
@@ -15,8 +15,6 @@ from llama_index.core.memory import ChatMemoryBuffer
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
-import time
-from datetime import datetime
 
 # ---------------------------------------------
 # Environment Variables and Logging
@@ -29,27 +27,14 @@ logging.getLogger().addHandler(logging.StreamHandler(stream=sys.stdout))
 # ---------------------------------------------
 # API Keys Setup
 # ---------------------------------------------
-api_key = os.environ.get("PINECONE_API_KEY")
-if not api_key:
-    raise RuntimeError("PINECONE_API_KEY environment variable is not set.")
+api_key = os.environ["PINECONE_API_KEY"]
 openai.api_key = os.environ["OPENAI_API_KEY"]
 
 # ---------------------------------------------
 # Pinecone and LlamaIndex Setup
 # ---------------------------------------------
-# Use new Pinecone client
 pc = Pinecone(api_key=api_key)
-
-index_name = "zhoop"
-# Check if index exists, if not, create it (adjust dimension as needed)
-if index_name not in pc.list_indexes().names():
-    pc.create_index(
-        name=index_name,
-        dimension=1536,  # Make sure this matches your embedding size
-        metric="cosine",
-        spec=ServerlessSpec(cloud="gcp", region="us-central1")
-    )
-pinecone_index = pc.Index(index_name)
+pinecone_index = pc.Index("zhoop")
 vector_store = PineconeVectorStore(pinecone_index=pinecone_index)
 index = VectorStoreIndex.from_vector_store(vector_store)
 
@@ -235,7 +220,7 @@ async def populate_dashboard(request: DashboardRequest):
 @app.post("/dashboard/populate-hierarchical", response_model=DashboardResponse)
 async def populate_dashboard_hierarchical(request: DashboardRequest):
     """
-    Populate dashboard using hierarchical agent execution for enhanced results.
+    Advanced endpoint that populates all 4 grids using hierarchical execution.
     
     Execution Flow:
     1. Laws Agent (Most Independent) - Establishes legal framework
@@ -351,79 +336,6 @@ async def get_cases_grid(request: GridRequest):
     except Exception as e:
         logging.error(f"Error getting cases grid: {e}")
         raise HTTPException(status_code=500, detail=str(e))
-
-
-        from parsers import ResponseParser
-        parsed_responses = ResponseParser.parse_all_responses_with_grid5(
-            agent_responses, 
-            request.case_id, 
-            request.case_context
-        )
-        
-        generation_time = time.time() - start_time
-        
-        # Build enhanced dashboard response
-        from models import EnhancedDashboardResponse
-        response = EnhancedDashboardResponse(
-            grid_1_compliance=parsed_responses["compliance"],
-            grid_2_laws=parsed_responses["legal"],
-            grid_3_documents=parsed_responses["documents"],
-            grid_4_cases=parsed_responses["cases"],
-            grid_5_live_cases=parsed_responses.get("live_cases"),
-            generation_time=generation_time,
-            ai_confidence=0.95,  # Highest confidence with all grids
-            total_api_calls=(
-                parsed_responses.get("live_cases").api_calls_made 
-                if parsed_responses.get("live_cases") else 0
-            )
-        )
-        
-        logging.info(
-            f"Enhanced dashboard completed: {generation_time:.2f}s, "
-            f"Grid 5: {response.grid_5_live_cases.total_found if response.grid_5_live_cases else 0} cases"
-        )
-        
-        return response
-        
-    except Exception as e:
-        logging.error(f"Error in enhanced dashboard population: {e}")
-        # Graceful fallback to Grid 1-4 only
-        try:
-            return await _fallback_to_grid_1_4(request, start_time, error_message=str(e))
-        except Exception as fallback_error:
-            logging.error(f"Fallback also failed: {fallback_error}")
-            raise HTTPException(
-                status_code=500, 
-                detail=f"Dashboard population failed: {str(e)}. Fallback also failed: {str(fallback_error)}"
-            )
-
-async def _fallback_to_grid_1_4(request: DashboardRequest, start_time: float, error_message: str = None) -> EnhancedDashboardResponse:
-    """
-    Fallback function to provide Grids 1-4 when Grid 5 is unavailable
-    """
-    logging.info("Executing fallback to Grids 1-4 only")
-    
-    fallback_responses = await agent_manager.populate_dashboard_hierarchical(
-        request.case_id, request.case_context
-    )
-    
-    from parsers import ResponseParser
-    parsed_fallback = ResponseParser.parse_all_responses(
-        fallback_responses, request.case_id, request.case_context
-    )
-    
-    from models import EnhancedDashboardResponse
-    return EnhancedDashboardResponse(
-        grid_1_compliance=parsed_fallback["compliance"],
-        grid_2_laws=parsed_fallback["legal"],
-        grid_3_documents=parsed_fallback["documents"],
-        grid_4_cases=parsed_fallback["cases"],
-        grid_5_live_cases=None,
-        generation_time=time.time() - start_time,
-        ai_confidence=0.85,
-        total_api_calls=0,
-        error_message=f"Grid 5 unavailable: {error_message}" if error_message else "Grid 5 unavailable"
-    )
 
 # ---------------------------------------------
 # Streaming Endpoints for Real-time Updates
