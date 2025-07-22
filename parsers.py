@@ -382,6 +382,302 @@ class CaseParser(BaseParser):
             )
 
 # ---------------------------------------------
+# Live Cases Response Parser - Grid 5 (Enhanced)
+# ---------------------------------------------
+class LiveCasesParser(BaseParser):
+    @classmethod
+    def parse(cls, live_cases_data: Dict, case_context: str) -> 'LiveCasesResponse':
+        """Parse live cases data into structured Grid 5 response with advanced analytics"""
+        from models import LiveCasesResponse, LiveCaseDocument, CitationData, CaseAnalytics
+        from case_analytics import get_case_analytics_engine
+        from citation_analyzer import get_citation_analyzer
+        
+        try:
+            # Parse live cases
+            live_cases = []
+            for case_data in live_cases_data.get('live_cases', []):
+                live_case = LiveCaseDocument(
+                    tid=case_data.get('tid', 0),
+                    title=case_data.get('title', 'Unknown Case'),
+                    court=case_data.get('court', 'Unknown Court'),
+                    date=case_data.get('date'),
+                    bns_sections=case_data.get('bns_sections', []),
+                    similarity_score=case_data.get('similarity_score', 0.0),
+                    case_outcome=case_data.get('case_outcome'),
+                    indian_kanoon_url=case_data.get('indian_kanoon_url', ''),
+                    summary=case_data.get('summary', ''),
+                    headline=case_data.get('headline', ''),
+                    docsource=case_data.get('docsource', ''),
+                    docsize=case_data.get('docsize', 0)
+                )
+                live_cases.append(live_case)
+            
+            # Parse citation data
+            citation_network = None
+            if live_cases_data.get('citation_network'):
+                citation_data = live_cases_data['citation_network']
+                citation_network = CitationData(
+                    citation_count=citation_data.get('citation_count', 0),
+                    authority_score=citation_data.get('authority_score', 5.0),
+                    precedent_strength=citation_data.get('precedent_strength', 'Medium')
+                )
+            
+            # Parse case analytics
+            case_analytics = None
+            if live_cases_data.get('case_analytics'):
+                analytics_data = live_cases_data['case_analytics']
+                case_analytics = CaseAnalytics(
+                    conviction_rate=analytics_data.get('conviction_rate'),
+                    legal_trends=analytics_data.get('legal_trends', ''),
+                    success_patterns=analytics_data.get('success_patterns', []),
+                    risk_factors=analytics_data.get('risk_factors', [])
+                )
+            
+            # Extract search metadata
+            search_metadata = live_cases_data.get('search_metadata', {})
+            
+            # Advanced Analytics Integration
+            analytics_engine = get_case_analytics_engine()
+            citation_analyzer = get_citation_analyzer()
+            
+            # Perform comprehensive case outcome analysis
+            outcome_analysis = analytics_engine.analyze_case_outcomes([case.__dict__ if hasattr(case, '__dict__') else case for case in live_cases])
+            
+            # Perform court performance analysis
+            court_metrics = analytics_engine.analyze_court_performance([case.__dict__ if hasattr(case, '__dict__') else case for case in live_cases])
+            
+            # Analyze legal trends
+            legal_trends = analytics_engine.analyze_legal_trends([case.__dict__ if hasattr(case, '__dict__') else case for case in live_cases])
+            
+            # Generate strategic recommendations
+            analytics_results = {
+                'outcome_analysis': outcome_analysis,
+                'court_metrics': court_metrics,
+                'trends': legal_trends
+            }
+            strategic_recommendations = analytics_engine.generate_strategic_recommendations(analytics_results)
+            
+            # Enhanced case analytics with advanced insights
+            if case_analytics:
+                # Add strategic recommendations to case analytics
+                case_analytics.strategic_recommendations = strategic_recommendations[:3]
+                case_analytics.court_performance = {
+                    court: {
+                        'conviction_rate': metrics.conviction_rate,
+                        'total_cases': metrics.total_cases,
+                        'court_level': metrics.court_level
+                    } for court, metrics in court_metrics.items()
+                }
+                case_analytics.legal_trend_summary = '; '.join([trend.description for trend in legal_trends[:2]])
+            
+            # Enhanced legal insights with advanced analytics
+            enhanced_insights = cls._generate_enhanced_legal_insights(
+                live_cases, case_analytics, outcome_analysis, court_metrics, legal_trends
+            )
+            
+            return LiveCasesResponse(
+                live_cases=live_cases,
+                total_found=len(live_cases),
+                citation_network=citation_network,
+                case_analytics=case_analytics,
+                search_query=search_metadata.get('primary_query', ''),
+                api_calls_made=search_metadata.get('api_calls_made', 0),
+                context_summary=f"Found {len(live_cases)} relevant live cases with advanced analytics from Indian courts",
+                legal_insights=enhanced_insights,
+                strategic_recommendations=strategic_recommendations
+            )
+            
+        except Exception as e:
+            logging.error(f"Error parsing live cases response: {e}")
+            # Return empty response on error
+            return LiveCasesResponse(
+                live_cases=[],
+                total_found=0,
+                citation_network=None,
+                case_analytics=None,
+                search_query="",
+                api_calls_made=0,
+                context_summary="Error fetching live cases data",
+                legal_insights=f"Error: {str(e)}"
+            )
+    
+    @classmethod
+    def _generate_legal_insights(cls, live_cases: List, case_analytics) -> str:
+        """Generate comprehensive legal insights from live cases"""
+        if not live_cases:
+            return "No live cases found for analysis."
+        
+        insights = []
+        
+        # Court distribution analysis
+        supreme_cases = len([c for c in live_cases if 'Supreme Court' in c.court])
+        high_court_cases = len([c for c in live_cases if 'High Court' in c.court])
+        
+        if supreme_cases > 0:
+            insights.append(f"Supreme Court precedents: {supreme_cases} cases provide strong legal authority.")
+        if high_court_cases > 0:
+            insights.append(f"High Court decisions: {high_court_cases} cases offer regional precedents.")
+        
+        # Outcome analysis
+        if case_analytics and case_analytics.conviction_rate is not None:
+            conviction_rate = case_analytics.conviction_rate * 100
+            if conviction_rate > 70:
+                insights.append(f"High conviction rate ({conviction_rate:.0f}%) in similar cases suggests strong prosecution likelihood.")
+            elif conviction_rate < 30:
+                insights.append(f"Low conviction rate ({conviction_rate:.0f}%) in similar cases may indicate defense opportunities.")
+        
+        # BNS sections analysis
+        all_sections = []
+        for case in live_cases:
+            all_sections.extend(case.bns_sections)
+        
+        if all_sections:
+            common_sections = list(set(all_sections))
+            insights.append(f"Common BNS sections in similar cases: {', '.join(common_sections[:5])}")
+        
+        # Similarity analysis
+        high_similarity_cases = len([c for c in live_cases if c.similarity_score > 0.7])
+        if high_similarity_cases > 0:
+            insights.append(f"{high_similarity_cases} cases show high similarity (>70%) to current case facts.")
+        
+        return " ".join(insights) if insights else "Limited insights available from current case data."
+    
+    @classmethod
+    def _generate_enhanced_legal_insights(cls, live_cases: List, case_analytics, 
+                                        outcome_analysis: Dict, court_metrics: Dict, 
+                                        legal_trends: List) -> str:
+        """Generate comprehensive legal insights with advanced analytics"""
+        if not live_cases:
+            return "No live cases found for comprehensive analysis."
+        
+        insights = []
+        
+        # Advanced outcome analysis insights
+        if outcome_analysis:
+            conviction_rate = outcome_analysis.get('conviction_rate')
+            if conviction_rate is not None:
+                conviction_pct = conviction_rate * 100
+                if conviction_pct > 75:
+                    insights.append(
+                        f"⚠️ Critical Risk: {conviction_pct:.0f}% conviction rate in similar cases suggests "
+                        "strong prosecution patterns. Recommend thorough evidence review and procedural defense strategies."
+                    )
+                elif conviction_pct < 25:
+                    insights.append(
+                        f"✅ Defense Opportunity: {conviction_pct:.0f}% conviction rate indicates favorable "
+                        "defense outcomes. Analyze successful defense strategies from acquitted cases."
+                    )
+                else:
+                    insights.append(
+                        f"📊 Balanced Outcomes: {conviction_pct:.0f}% conviction rate shows mixed results. "
+                        "Case-specific factors will be decisive."
+                    )
+            
+            # Success patterns analysis
+            success_patterns = outcome_analysis.get('success_patterns', [])
+            if success_patterns:
+                insights.append(f"🎯 Key Success Factors: {'; '.join(success_patterns[:2])}")
+        
+        # Advanced court performance insights
+        if court_metrics:
+            supreme_courts = [court for court, metrics in court_metrics.items() if 'Supreme Court' in court]
+            high_courts = [court for court, metrics in court_metrics.items() if 'High Court' in court]
+            
+            if supreme_courts:
+                sc_cases = sum(court_metrics[court].total_cases for court in supreme_courts)
+                insights.append(
+                    f"🏛️ Supreme Court Authority: {sc_cases} precedent(s) provide binding legal authority "
+                    "across all Indian courts. These cases carry maximum precedential value."
+                )
+            
+            if high_courts:
+                hc_cases = sum(court_metrics[court].total_cases for court in high_courts)
+                insights.append(
+                    f"⚖️ High Court Precedents: {hc_cases} regional precedent(s) offer strong persuasive authority "
+                    "and may indicate regional judicial trends."
+                )
+            
+            # Court-specific conviction patterns
+            court_conviction_analysis = []
+            for court, metrics in court_metrics.items():
+                if metrics.total_cases >= 2:  # Only analyze courts with sufficient data
+                    conv_rate = metrics.conviction_rate * 100
+                    if conv_rate > 80:
+                        court_conviction_analysis.append(f"{court}: High conviction tendency ({conv_rate:.0f}%)")
+                    elif conv_rate < 20:
+                        court_conviction_analysis.append(f"{court}: Defense-favorable ({conv_rate:.0f}%)")
+            
+            if court_conviction_analysis:
+                insights.append(f"📈 Court Patterns: {'; '.join(court_conviction_analysis[:2])}")
+        
+        # Legal trends insights
+        if legal_trends:
+            trend_insights = []
+            for trend in legal_trends[:2]:  # Top 2 trends
+                if trend.direction == 'increasing':
+                    trend_insights.append(f"{trend.description} (↗️ Increasing trend)")
+                elif trend.direction == 'decreasing':
+                    trend_insights.append(f"{trend.description} (↘️ Decreasing trend)")
+                else:
+                    trend_insights.append(f"{trend.description} (→ Stable pattern)")
+            
+            if trend_insights:
+                insights.append(f"📊 Legal Trends: {'; '.join(trend_insights)}")
+        
+        # Case similarity and relevance insights
+        high_similarity_cases = len([c for c in live_cases if getattr(c, 'similarity_score', 0) > 0.8])
+        medium_similarity_cases = len([c for c in live_cases if 0.6 <= getattr(c, 'similarity_score', 0) <= 0.8])
+        
+        if high_similarity_cases > 0:
+            insights.append(
+                f"🎯 High Relevance: {high_similarity_cases} case(s) show >80% similarity to current facts, "
+                "providing directly applicable precedents for case strategy."
+            )
+        elif medium_similarity_cases > 0:
+            insights.append(
+                f"📋 Moderate Relevance: {medium_similarity_cases} case(s) show 60-80% similarity, "
+                "offering useful analogies and legal principles."
+            )
+        
+        # BNS section analysis across all cases
+        all_bns_sections = []
+        for case in live_cases:
+            if hasattr(case, 'bns_sections'):
+                all_bns_sections.extend(case.bns_sections)
+            elif isinstance(case, dict):
+                all_bns_sections.extend(case.get('bns_sections', []))
+        
+        if all_bns_sections:
+            from collections import Counter
+            section_counts = Counter(all_bns_sections)
+            most_common = section_counts.most_common(3)
+            
+            insights.append(
+                f"📜 Common Legal Provisions: Sections {', '.join([f'{s[0]} ({s[1]} cases)' for s in most_common])} "
+                "frequently appear in similar cases, indicating key legal issues."
+            )
+        
+        # Strategic timing insights
+        total_cases = len(live_cases)
+        if total_cases >= 10:
+            insights.append(
+                f"📚 Comprehensive Analysis: Based on {total_cases} relevant cases from Indian courts, "
+                "providing robust statistical foundation for legal strategy development."
+            )
+        elif total_cases >= 5:
+            insights.append(
+                f"📖 Moderate Analysis: Based on {total_cases} relevant cases, "
+                "offering good precedential guidance with room for additional research."
+            )
+        else:
+            insights.append(
+                f"📝 Limited Analysis: Based on {total_cases} relevant case(s), "
+                "recommend expanding search criteria for more comprehensive precedent analysis."
+            )
+        
+        return " ".join(insights) if insights else "Comprehensive legal analysis completed with limited actionable insights."
+
+# ---------------------------------------------
 # Master Response Parser
 # ---------------------------------------------
 class ResponseParser:
@@ -403,3 +699,21 @@ class ResponseParser:
                 agent_responses.get("cases", ""), case_context
             )
         }
+    
+    @staticmethod
+    def parse_all_responses_with_grid5(agent_responses: Dict[str, Any], case_id: str, case_context: str) -> Dict[str, Any]:
+        """Parse all agent responses including Grid 5 live cases"""
+        
+        # Parse Grids 1-4
+        parsed_responses = ResponseParser.parse_all_responses(
+            {k: v for k, v in agent_responses.items() if k != "live_cases"}, 
+            case_id, case_context
+        )
+        
+        # Parse Grid 5 if available
+        if "live_cases" in agent_responses:
+            parsed_responses["live_cases"] = LiveCasesParser.parse(
+                agent_responses["live_cases"], case_context
+            )
+        
+        return parsed_responses

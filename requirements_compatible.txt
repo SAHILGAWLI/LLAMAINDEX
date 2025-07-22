@@ -1,0 +1,50 @@
+# ---------------------------------------------
+# Compatible Legal Platform Requirements with Grid 5
+# Grid 5: Live Cases Analytics Integration
+# ---------------------------------------------
+
+# Core LlamaIndex and AI Dependencies (Compatible versions)
+llama-index>=0.9.48
+openai>=1.0.0
+
+# Vector Database
+pinecone-client>=2.2.0
+
+# Web Framework and API
+fastapi>=0.100.0
+uvicorn>=0.20.0
+pydantic>=2.0.0
+python-multipart>=0.0.6
+
+# HTTP Client for Indian Kanoon API (Grid 5)
+aiohttp>=3.8.0
+requests>=2.28.0
+httpx>=0.24.0
+
+# Advanced Analytics Dependencies (Grid 5)
+networkx>=3.0.0
+numpy>=1.21.0
+pandas>=1.5.0
+scikit-learn>=1.2.0
+
+# Date and Time Processing
+python-dateutil>=2.8.0
+
+# Environment and Configuration
+python-dotenv>=1.0.0
+
+# Testing and Development
+streamlit>=1.28.0
+
+# Data Processing and Utilities
+beautifulsoup4>=4.11.0
+lxml>=4.8.0
+
+# Async and Concurrency
+asyncio-throttle>=1.0.0
+
+# Production Dependencies
+gunicorn>=20.0.0
+
+# Security
+cryptography>=3.0.0

@@ -6,7 +6,6 @@ import sys
 import logging
 from dotenv import load_dotenv
 import openai
-import pinecone
 from pinecone import Pinecone, ServerlessSpec
 from llama_index.vector_stores.pinecone import PineconeVectorStore
 from llama_index.core import VectorStoreIndex

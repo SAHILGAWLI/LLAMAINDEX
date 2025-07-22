@@ -26,6 +26,11 @@ with st.sidebar:
     pinecone_key = st.text_input("Pinecone API Key", type="password", help="Your Pinecone API key")
     pinecone_index = st.text_input("Pinecone Index Name", value="quickstart", help="Pinecone index name")
     
+    # Grid 5 Configuration
+    st.subheader("🏛️ Grid 5: Indian Kanoon API")
+    indian_kanoon_key = st.text_input("Indian Kanoon API Token", type="password", help="Your Indian Kanoon API token for live legal case data")
+    st.markdown("*Required for Grid 5 Live Cases Analytics*")
+    
     if st.button("💾 Set Environment Variables"):
         if openai_key and pinecone_key:
             os.environ["OPENAI_API_KEY"] = openai_key
@@ -33,9 +38,15 @@ with st.sidebar:
             os.environ["PINECONE_INDEX_NAME"] = pinecone_index
             os.environ["LLM_MODEL"] = "gpt-4o-mini"
             os.environ["EMBEDDING_MODEL"] = "text-embedding-3-small"
-            st.success("✅ Environment variables set!")
+            
+            # Set Indian Kanoon API token if provided
+            if indian_kanoon_key:
+                os.environ["INDIAN_KANOON_API_TOKEN"] = indian_kanoon_key
+                st.success("✅ All environment variables set! Grid 5 Live Mode enabled!")
+            else:
+                st.success("✅ Basic environment variables set! Add Indian Kanoon token for Grid 5 Live Mode.")
         else:
-            st.error("❌ Please provide both API keys")
+            st.error("❌ Please provide both OpenAI and Pinecone API keys")
     
     st.markdown("---")
     
@@ -69,13 +80,14 @@ with st.sidebar:
             st.error(f"❌ Health check error: {e}")
 
 # Main content area with tabs
-tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs([
+tab1, tab2, tab3, tab4, tab5, tab6, tab7 = st.tabs([
     "🤖 ReAct Agents", 
     "📊 Dashboard", 
     "💬 Chat APIs", 
     "🔍 Query API", 
     "📡 Streaming", 
-    "📈 Status"
+    "📈 Status",
+    "🏛️ Grid 5: Live Cases"
 ])
 
 # Tab 1: ReAct Agents Testing
@@ -436,7 +448,129 @@ with tab6:
         "OpenAI API Key": "✅ Set" if os.getenv("OPENAI_API_KEY") else "❌ Missing",
         "Pinecone API Key": "✅ Set" if os.getenv("PINECONE_API_KEY") else "❌ Missing",
         "Pinecone Index": os.getenv("PINECONE_INDEX_NAME", "Not set"),
+        "Indian Kanoon API Token": "✅ Set - Grid 5 Live Mode" if os.getenv("INDIAN_KANOON_API_TOKEN") else "❌ Missing - Demo Mode Only",
         "LLM Model": os.getenv("LLM_MODEL", "Not set"),
         "Embedding Model": os.getenv("EMBEDDING_MODEL", "Not set")
     }
     st.json(env_status)
+
+# Tab 7: Grid 5 Live Cases
+with tab7:
+    st.header("🏛️ Grid 5: Live Cases Analytics")
+    st.markdown("**Test the new Grid 5 Live Cases Analytics with real-time legal case data**")
+    
+    # Input form for Grid 5
+    with st.form("grid5_form"):
+        col1, col2 = st.columns(2)
+        
+        with col1:
+            case_id = st.text_input("Case ID", value="CASE-2024-001")
+            case_context = st.text_area(
+                "Case Context", 
+                value="Medical negligence case involving surgical complications",
+                height=100
+            )
+        
+        with col2:
+            additional_context = st.text_area(
+                "Additional Context",
+                value="Patient suffered complications during routine surgery",
+                height=100
+            )
+        
+        submitted = st.form_submit_button("🚀 Analyze Live Cases", type="primary")
+    
+    if submitted:
+        st.subheader("📊 Grid 5 Analysis Results")
+        
+        request_data = {
+            "case_id": case_id,
+            "case_context": case_context,
+            "additional_context": additional_context
+        }
+        
+        try:
+            with st.spinner("🔄 Analyzing live cases..."):
+                response = requests.post(
+                    f"{api_url}/grid/live-cases",
+                    json=request_data,
+                    timeout=30
+                )
+            
+            if response.status_code == 200:
+                result = response.json()
+                
+                st.success(f"✅ {result['message']}")
+                
+                # Display metrics
+                col1, col2, col3 = st.columns(3)
+                with col1:
+                    st.metric("Total Cases", result['total_cases'])
+                with col2:
+                    st.metric("Generation Time", f"{result['generation_time']:.2f}s")
+                with col3:
+                    st.metric("Status", result['status'].upper())
+                
+                # Display cases
+                st.subheader("⚖️ Relevant Legal Cases")
+                
+                for i, case in enumerate(result['cases'], 1):
+                    with st.expander(f"📋 Case {i}: {case['title']}", expanded=True):
+                        col1, col2 = st.columns([2, 1])
+                        
+                        with col1:
+                            st.markdown(f"**Court:** {case['court']}")
+                            st.markdown(f"**Date:** {case['date']}")
+                            st.markdown(f"**Citation:** {case['citation']}")
+                            st.markdown(f"**Summary:** {case['summary']}")
+                            if case.get('url'):
+                                st.markdown(f"**URL:** [View Case]({case['url']})")
+                        
+                        with col2:
+                            score = case['similarity_score']
+                            if score >= 0.9:
+                                st.success(f"🎯 Similarity: {score:.1%}")
+                            elif score >= 0.8:
+                                st.warning(f"🔶 Similarity: {score:.1%}")
+                            else:
+                                st.info(f"🔵 Similarity: {score:.1%}")
+                
+                # Raw response
+                with st.expander("📥 Raw API Response", expanded=False):
+                    st.json(result)
+                    
+            else:
+                st.error(f"❌ API Error: {response.status_code}")
+                st.code(response.text)
+                
+        except Exception as e:
+            st.error(f"❌ Error: {e}")
+    
+    # Quick test buttons
+    st.subheader("🧪 Quick Tests")
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        if st.button("📋 View Demo Cases"):
+            try:
+                response = requests.get(f"{api_url}/demo/cases")
+                if response.status_code == 200:
+                    demo_data = response.json()
+                    st.success(f"✅ {demo_data['message']}")
+                    st.json(demo_data['cases'])
+                else:
+                    st.error(f"❌ Error: {response.status_code}")
+            except Exception as e:
+                st.error(f"❌ Error: {e}")
+    
+    with col2:
+        if st.button("📊 System Status"):
+            try:
+                response = requests.get(f"{api_url}/system/status")
+                if response.status_code == 200:
+                    st.success("✅ System Status")
+                    st.json(response.json())
+                else:
+                    st.error(f"❌ Error: {response.status_code}")
+            except Exception as e:
+                st.error(f"❌ Error: {e}")

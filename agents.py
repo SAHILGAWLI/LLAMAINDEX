@@ -3,7 +3,7 @@
 # ---------------------------------------------
 import os
 import asyncio
-from typing import Dict, List, Any
+from typing import Dict, List, Any, Optional
 from llama_index.core.agent.workflow import ReActAgent
 from llama_index.core.workflow import Context
 from llama_index.core.tools import QueryEngineTool
@@ -374,6 +374,401 @@ class AgentManager:
             return await self.populate_dashboard(case_id, case_context)
 
 # ---------------------------------------------
+# ---------------------------------------------
+# Live Cases Agent - Grid 5 Integration
+# ---------------------------------------------
+class LiveCasesAgent(object):
+    """
+    Specialized agent for fetching and analyzing live legal cases
+    from Indian Kanoon API with intelligent query construction
+    """
+    
+    def __init__(self, query_engines: LegalQueryEngines):
+        from indian_kanoon_client import get_indian_kanoon_client
+        from query_builder import get_query_builder
+        
+        self.ik_client = get_indian_kanoon_client()
+        self.query_builder = get_query_builder()
+        
+        # Tools for live case analysis
+        tools = [
+            QueryEngineTool.from_defaults(
+                query_engine=query_engines.base_index.as_query_engine(),
+                name="legal_knowledge_base",
+                description=(
+                    "Access to comprehensive legal knowledge base including "
+                    "BNS provisions, case law, and legal precedents. Use this "
+                    "to understand legal context and validate case relevance."
+                )
+            ),
+            QueryEngineTool.from_defaults(
+                query_engine=query_engines.base_index.as_query_engine(),
+                name="case_similarity_analyzer",
+                description=(
+                    "Analyzes similarity between cases based on legal facts, "
+                    "circumstances, and legal issues. Use this to score "
+                    "case relevance and identify key similarities."
+                )
+            )
+        ]
+        
+        system_prompt = (
+            "You are a Live Cases Analysis Specialist AI integrated with Indian Kanoon API. Your role is to:\n"
+            "1. Fetch real legal cases from Indian courts using intelligent search queries\n"
+            "2. Analyze case relevance and similarity to the current case\n"
+            "3. Extract key legal insights, outcomes, and precedents\n"
+            "4. Provide citation analysis and legal authority assessment\n"
+            "5. Generate actionable insights for legal strategy\n\n"
+            "You have access to 2.5+ million Indian court cases through Indian Kanoon API. "
+            "Always prioritize Supreme Court and High Court cases for higher legal authority. "
+            "Focus on cases with similar BNS sections, fact patterns, and legal issues. "
+            "Provide similarity scores, case outcomes, and strategic recommendations."
+        )
+        
+        # super().__init__ removed: not inheriting from ReActAgent. All initialization handled above.
+    
+    async def search_and_analyze_cases(self, case_context: str, laws_agent_output: str = "") -> Dict:
+        """
+        Search for relevant live cases and perform comprehensive analysis
+        
+        Args:
+            case_context: Description of the current case
+            laws_agent_output: Output from Laws Agent with BNS sections
+            
+        Returns:
+            Dict containing live cases with analysis and metadata
+        """
+        try:
+            # Build intelligent search strategy
+            search_strategy = self.query_builder.build_comprehensive_search_strategy(
+                case_context, laws_agent_output
+            )
+            
+            # Perform primary search
+            primary_results = await self.ik_client.search_cases(
+                query=search_strategy['primary_search']['query'],
+                doctypes=search_strategy['primary_search']['doctypes'],
+                maxcases=search_strategy['primary_search']['max_cases']
+            )
+            
+            live_cases = []
+            api_calls_made = 1
+            
+            # Process primary results
+            if primary_results.get('docs'):
+                live_cases.extend(await self._process_search_results(
+                    primary_results['docs'], case_context, laws_agent_output
+                ))
+                api_calls_made += len(primary_results['docs'][:5])  # Limit detailed analysis
+            
+            # Fallback search if insufficient results
+            if len(live_cases) < 5 and search_strategy['fallback_search']['query']:
+                fallback_results = await self.ik_client.search_cases(
+                    query=search_strategy['fallback_search']['query'],
+                    doctypes=search_strategy['fallback_search']['doctypes'],
+                    maxcases=search_strategy['fallback_search']['max_cases']
+                )
+                
+                if fallback_results.get('docs'):
+                    fallback_cases = await self._process_search_results(
+                        fallback_results['docs'], case_context, laws_agent_output
+                    )
+                    live_cases.extend(fallback_cases)
+                    api_calls_made += len(fallback_results['docs'][:3])
+            
+            # Sort by similarity score and limit results
+            live_cases.sort(key=lambda x: x.get('similarity_score', 0), reverse=True)
+            live_cases = live_cases[:15]  # Top 15 most relevant cases
+            
+            # Perform citation analysis for top cases
+            citation_data = await self._analyze_citations(live_cases[:5])
+            api_calls_made += 5
+            
+            # Generate case analytics
+            case_analytics = self._generate_case_analytics(live_cases)
+            
+            return {
+                'live_cases': live_cases,
+                'citation_network': citation_data,
+                'case_analytics': case_analytics,
+                'search_metadata': {
+                    **search_strategy['search_metadata'],
+                    'primary_query': search_strategy['primary_search']['query'],
+                    'fallback_query': search_strategy['fallback_search']['query'],
+                    'total_cases_found': len(live_cases),
+                    'api_calls_made': api_calls_made
+                }
+            }
+            
+        except Exception as e:
+            logging.error(f"Error in live cases search: {e}")
+            return {
+                'live_cases': [],
+                'citation_network': None,
+                'case_analytics': None,
+                'search_metadata': {'error': str(e)}
+            }
+    
+    async def _process_search_results(self, docs: List[Dict], case_context: str, 
+                                    laws_context: str) -> List[Dict]:
+        """Process search results and calculate similarity scores"""
+        processed_cases = []
+        
+        for doc in docs[:10]:  # Limit processing to top 10 results
+            try:
+                # Calculate similarity score using AI
+                similarity_score = await self._calculate_similarity_score(
+                    doc, case_context, laws_context
+                )
+                
+                # Extract BNS sections from case
+                bns_sections = self._extract_bns_sections_from_case(doc)
+                
+                # Generate case summary
+                summary = await self._generate_case_summary(doc, case_context)
+                
+                processed_case = {
+                    'tid': doc.get('tid', 0),
+                    'title': doc.get('title', 'Unknown Case'),
+                    'court': self._extract_court_name(doc.get('docsource', '')),
+                    'date': doc.get('date'),
+                    'bns_sections': bns_sections,
+                    'similarity_score': similarity_score,
+                    'case_outcome': self._extract_case_outcome(doc),
+                    'indian_kanoon_url': f"https://indiankanoon.org/doc/{doc.get('tid', 0)}/",
+                    'summary': summary,
+                    'headline': doc.get('headline', ''),
+                    'docsource': doc.get('docsource', ''),
+                    'docsize': doc.get('docsize', 0)
+                }
+                
+                processed_cases.append(processed_case)
+                
+            except Exception as e:
+                logging.warning(f"Error processing case {doc.get('tid', 'unknown')}: {e}")
+                continue
+        
+        return processed_cases
+    
+    async def _calculate_similarity_score(self, doc: Dict, case_context: str, 
+                                        laws_context: str) -> float:
+        """Calculate AI-powered similarity score between cases"""
+        try:
+            # Use the case similarity analyzer tool
+            similarity_query = (
+                f"Calculate similarity score between current case context: '{case_context}' "
+                f"and this legal case: Title: {doc.get('title', '')} "
+                f"Headline: {doc.get('headline', '')} "
+                f"Legal context: {laws_context} "
+                f"Consider legal issues, fact patterns, BNS sections, and case circumstances. "
+                f"Return a similarity score between 0.0 and 1.0."
+            )
+            
+            response = await self.run_tool("case_similarity_analyzer", similarity_query)
+            
+            # Extract numerical score from response
+            import re
+            score_match = re.search(r'\b0\.[0-9]+\b|\b1\.0\b', response)
+            if score_match:
+                return float(score_match.group())
+            
+            # Fallback: basic keyword matching
+            return self._basic_similarity_score(doc, case_context)
+            
+        except Exception as e:
+            logging.warning(f"Error calculating similarity score: {e}")
+            return self._basic_similarity_score(doc, case_context)
+    
+    def _basic_similarity_score(self, doc: Dict, case_context: str) -> float:
+        """Basic similarity scoring based on keyword matching"""
+        case_text = f"{doc.get('title', '')} {doc.get('headline', '')}".lower()
+        context_words = set(case_context.lower().split())
+        case_words = set(case_text.split())
+        
+        if not case_words:
+            return 0.0
+        
+        common_words = context_words.intersection(case_words)
+        return min(len(common_words) / len(context_words) * 2, 1.0)  # Scale up
+    
+    def _extract_bns_sections_from_case(self, doc: Dict) -> List[str]:
+        """Extract BNS sections mentioned in the case"""
+        text = f"{doc.get('title', '')} {doc.get('headline', '')}"
+        return self.query_builder.extract_bns_sections(text)
+    
+    def _extract_court_name(self, docsource: str) -> str:
+        """Extract readable court name from docsource"""
+        court_mappings = {
+            'supremecourt': 'Supreme Court of India',
+            'delhi': 'Delhi High Court',
+            'bombay': 'Bombay High Court',
+            'kolkata': 'Calcutta High Court',
+            'chennai': 'Madras High Court',
+            'allahabad': 'Allahabad High Court'
+        }
+        
+        for key, name in court_mappings.items():
+            if key in docsource.lower():
+                return name
+        
+        return docsource or 'Unknown Court'
+    
+    def _extract_case_outcome(self, doc: Dict) -> Optional[str]:
+        """Extract case outcome from case text"""
+        text = f"{doc.get('title', '')} {doc.get('headline', '')}".lower()
+        
+        if any(word in text for word in ['convicted', 'guilty', 'sentenced']):
+            return 'Conviction'
+        elif any(word in text for word in ['acquitted', 'discharged', 'not guilty']):
+            return 'Acquittal'
+        elif any(word in text for word in ['dismissed', 'rejected']):
+            return 'Dismissed'
+        elif any(word in text for word in ['allowed', 'granted']):
+            return 'Allowed'
+        
+        return None
+    
+    async def _generate_case_summary(self, doc: Dict, case_context: str) -> str:
+        """Generate AI-powered case summary"""
+        try:
+            summary_query = (
+                f"Generate a concise 2-sentence summary of this legal case: "
+                f"Title: {doc.get('title', '')} "
+                f"Headline: {doc.get('headline', '')} "
+                f"Focus on key legal issues and relevance to current case context: {case_context}"
+            )
+            
+            response = await self.run_tool("legal_knowledge_base", summary_query)
+            return response[:200] + "..." if len(response) > 200 else response
+            
+        except Exception as e:
+            logging.warning(f"Error generating case summary: {e}")
+            return doc.get('headline', 'Case summary not available')[:150] + "..."
+    
+    async def _analyze_citations(self, top_cases: List[Dict]) -> Dict:
+        """Analyze citation networks for top cases"""
+        try:
+            total_citations = 0
+            authority_scores = []
+            
+            for case in top_cases[:3]:  # Analyze top 3 cases
+                try:
+                    doc_meta = await self.ik_client.get_document_metadata(case['tid'])
+                    
+                    cites = len(doc_meta.get('citeList', []))
+                    cited_by = len(doc_meta.get('citedbyList', []))
+                    
+                    total_citations += cites + cited_by
+                    
+                    # Authority score based on court level and citations
+                    court_weight = 10 if 'Supreme Court' in case['court'] else 7 if 'High Court' in case['court'] else 5
+                    citation_weight = min(cited_by * 0.1, 3)  # Max 3 points from citations
+                    authority_scores.append(court_weight + citation_weight)
+                    
+                except Exception as e:
+                    logging.warning(f"Error analyzing citations for case {case['tid']}: {e}")
+                    continue
+            
+            avg_authority = sum(authority_scores) / len(authority_scores) if authority_scores else 5.0
+            
+            return {
+                'citation_count': total_citations,
+                'authority_score': round(avg_authority, 1),
+                'precedent_strength': 'High' if avg_authority > 8 else 'Medium' if avg_authority > 6 else 'Low'
+            }
+            
+        except Exception as e:
+            logging.error(f"Error in citation analysis: {e}")
+            return {
+                'citation_count': 0,
+                'authority_score': 5.0,
+                'precedent_strength': 'Medium'
+            }
+    
+    def _generate_case_analytics(self, live_cases: List[Dict]) -> Dict:
+        """Generate advanced case analytics"""
+        if not live_cases:
+            return {
+                'conviction_rate': None,
+                'legal_trends': 'Insufficient data for analysis',
+                'success_patterns': [],
+                'risk_factors': []
+            }
+        
+        # Analyze outcomes
+        outcomes = [case.get('case_outcome') for case in live_cases if case.get('case_outcome')]
+        conviction_rate = len([o for o in outcomes if o == 'Conviction']) / len(outcomes) if outcomes else None
+        
+        # Identify patterns
+        success_patterns = []
+        risk_factors = []
+        
+        # Court analysis
+        supreme_cases = len([c for c in live_cases if 'Supreme Court' in c.get('court', '')])
+        if supreme_cases > 0:
+            success_patterns.append(f"Supreme Court precedents available ({supreme_cases} cases)")
+        
+        # BNS section analysis
+        all_sections = []
+        for case in live_cases:
+            all_sections.extend(case.get('bns_sections', []))
+        
+        if all_sections:
+            common_sections = list(set(all_sections))
+            success_patterns.append(f"Common BNS sections: {', '.join(common_sections[:3])}")
+        
+        # Risk analysis
+        if conviction_rate and conviction_rate > 0.7:
+            risk_factors.append("High conviction rate in similar cases")
+        
+        return {
+            'conviction_rate': round(conviction_rate, 2) if conviction_rate else None,
+            'legal_trends': f"Analysis based on {len(live_cases)} similar cases",
+            'success_patterns': success_patterns,
+            'risk_factors': risk_factors
+        }
+
+# Update Agent Manager to include Live Cases Agent
+class EnhancedAgentManager(AgentManager):
+    """Enhanced Agent Manager with Grid 5 Live Cases Agent"""
+    
+    def __init__(self):
+        super().__init__()
+        # Add Live Cases Agent
+        self.live_cases_agent = LiveCasesAgent(self.query_engines)
+        self.agents["live_cases"] = self.live_cases_agent
+    
+    async def populate_dashboard_with_grid5(self, case_id: str, case_context: str) -> Dict[str, str]:
+        """
+        Populate dashboard including Grid 5 using hierarchical execution
+        """
+        try:
+            # Run hierarchical execution for Grids 1-4
+            grid_1_4_results = await self.populate_dashboard_hierarchical(case_id, case_context)
+            
+            # Extract Laws Agent output for Grid 5
+            laws_output = grid_1_4_results.get("legal", "")
+            
+            # Run Grid 5 with enhanced context
+            print(f"🔍 [TIER 5] Running Live Cases Agent with full legal context...")
+            grid5_results = await self.live_cases_agent.search_and_analyze_cases(
+                case_context, laws_output
+            )
+            
+            # Combine all results
+            all_results = {
+                **grid_1_4_results,
+                "live_cases": grid5_results
+            }
+            
+            print(f"✅ Enhanced dashboard population completed with Grid 5 for case {case_id}")
+            return all_results
+            
+        except Exception as e:
+            print(f"❌ Error in enhanced dashboard execution: {e}")
+            # Fallback to Grid 1-4 only
+            return await self.populate_dashboard_hierarchical(case_id, case_context)
+
 # Global Agent Manager Instance
 # ---------------------------------------------
-agent_manager = AgentManager()
+agent_manager = EnhancedAgentManager()

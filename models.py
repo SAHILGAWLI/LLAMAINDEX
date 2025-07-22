@@ -4,6 +4,8 @@
 from pydantic import BaseModel, Field
 from typing import List, Optional, Dict, Any
 from enum import Enum
+from datetime import datetime
+import logging
 
 # ---------------------------------------------
 # Enums
@@ -138,6 +140,75 @@ class StreamUpdate(BaseModel):
     data: Dict[str, Any] = Field(..., description="Update data")
     timestamp: str = Field(..., description="Update timestamp")
     progress: Optional[float] = Field(None, description="Progress percentage")
+
+# ---------------------------------------------
+# Response Models - Grid 5: Live Cases Analytics
+# ---------------------------------------------
+class LiveCaseDocument(BaseModel):
+    tid: int = Field(..., description="Indian Kanoon document ID")
+    title: str = Field(..., description="Case title")
+    court: str = Field(..., description="Court name")
+    date: Optional[str] = Field(None, description="Case date")
+    bns_sections: List[str] = Field(default_factory=list, description="Relevant BNS sections")
+    similarity_score: float = Field(..., description="AI-calculated similarity score (0-1)")
+    case_outcome: Optional[str] = Field(None, description="Case outcome/judgment")
+    indian_kanoon_url: str = Field(..., description="Direct link to Indian Kanoon case")
+    summary: Optional[str] = Field(None, description="AI-generated case summary")
+    headline: Optional[str] = Field(None, description="Case headline/excerpt")
+    docsource: Optional[str] = Field(None, description="Document source")
+    docsize: Optional[int] = Field(None, description="Document size in characters")
+
+class CitationData(BaseModel):
+    cites: List[str] = Field(default_factory=list, description="Cases this case cites")
+    cited_by: List[str] = Field(default_factory=list, description="Cases that cite this case")
+    citation_count: int = Field(0, description="Total citation count")
+    authority_score: float = Field(0.0, description="Citation authority score (0-10)")
+
+class CaseAnalytics(BaseModel):
+    conviction_rate: Optional[float] = Field(None, description="Conviction rate in similar cases")
+    average_sentence: Optional[str] = Field(None, description="Average sentence for similar cases")
+    legal_trends: Optional[str] = Field(None, description="Legal trends analysis")
+    success_patterns: List[str] = Field(default_factory=list, description="Success patterns identified")
+    risk_factors: List[str] = Field(default_factory=list, description="Risk factors identified")
+    strategic_recommendations: Optional[List[str]] = Field(None, description="Strategic recommendations")
+    court_performance: Optional[Dict[str, Any]] = Field(None, description="Court performance metrics")
+    legal_trend_summary: Optional[str] = Field(None, description="Summary of legal trends")
+
+class LiveCasesResponse(BaseModel):
+    live_cases: List[LiveCaseDocument] = Field(default_factory=list, description="Live cases from Indian Kanoon")
+    total_found: int = Field(0, description="Total cases found in search")
+    citation_network: Optional[CitationData] = Field(None, description="Citation network analysis")
+    case_analytics: Optional[CaseAnalytics] = Field(None, description="Advanced case analytics")
+    search_query: str = Field("", description="Search query used")
+    api_calls_made: int = Field(0, description="Number of API calls made")
+    context_summary: str = Field("", description="Summary of search context")
+    legal_insights: str = Field("", description="AI-generated legal insights")
+    strategic_recommendations: List[str] = Field(default_factory=list, description="Strategic recommendations")
+    generation_time: Optional[float] = Field(None, description="Time taken to generate response")
+    
+    class Config:
+        json_encoders = {
+            datetime: lambda v: v.isoformat() if v else None
+        }
+
+# ---------------------------------------------
+# Enhanced Dashboard Response with Grid 5
+# ---------------------------------------------
+class EnhancedDashboardResponse(BaseModel):
+    grid_1_compliance: ComplianceResponse
+    grid_2_laws: LawsResponse
+    grid_3_documents: DocumentsResponse
+    grid_4_cases: PastCasesResponse
+    grid_5_live_cases: Optional[LiveCasesResponse] = None
+    generation_time: float
+    ai_confidence: float
+    total_api_calls: Optional[int] = 0
+    error_message: Optional[str] = None
+    
+    class Config:
+        json_encoders = {
+            datetime: lambda v: v.isoformat() if v else None
+        }
 
 # ---------------------------------------------
 # Error Models
