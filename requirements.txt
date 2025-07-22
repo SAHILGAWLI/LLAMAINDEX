@@ -6,4 +6,10 @@ pinecone-client
 llama-index
 llama-index-vector-stores-pinecone
 llama-index-llms-openai
+llama-index-core
+llama-index-agent-openai
+llama-index-tools-query-engine
 pydantic
+streamlit
+aiofiles
+websockets
