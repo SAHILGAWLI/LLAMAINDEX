@@ -24,7 +24,7 @@ class BaseAgent:
     def __init__(self, name: str, tools: List[QueryEngineTool], system_prompt: str = None):
         self.name = name
         # Add a callback manager to trace agent execution
-        self.llama_debug_handler = LlamaDebugHandler(print_trace=True)
+        self.llama_debug_handler = LlamaDebugHandler()
         self.callback_manager = CallbackManager([self.llama_debug_handler])
         
         self.agent = ReActAgent(
