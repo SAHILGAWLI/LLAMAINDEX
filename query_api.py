@@ -104,7 +104,7 @@ app = FastAPI()
 # Add CORS middleware for browser access (Next.js compatible)
 # Environment-driven CORS configuration for production safety
 allowed_origins = os.getenv("CORS_ORIGINS", 
-    "http://localhost:3000,http://localhost:3001,http://127.0.0.1:3000,https://your-frontend-domain.com"
+    "http://localhost:3000,http://localhost:3001,http://127.0.0.1:3000,https://zhoop.onrender.com"
 ).split(",")
 
 # Add wildcard for development (remove CORS_ALLOW_ALL in production)

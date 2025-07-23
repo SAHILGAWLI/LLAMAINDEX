@@ -7,6 +7,8 @@ from typing import Dict, List, Any, Optional
 from llama_index.core.agent.workflow import ReActAgent
 from llama_index.core.workflow import Context
 from llama_index.core.tools import QueryEngineTool
+from llama_index.core.callbacks import CallbackManager, LlamaDebugHandler
+import logging
 from llama_index.llms.openai import OpenAI
 from llama_index.core import VectorStoreIndex
 from llama_index.vector_stores.pinecone import PineconeVectorStore
@@ -21,22 +23,39 @@ from query_api import pc, pinecone_index, vector_store, index, llm
 class BaseAgent:
     def __init__(self, name: str, tools: List[QueryEngineTool], system_prompt: str = None):
         self.name = name
+        # Add a callback manager to trace agent execution
+        self.llama_debug_handler = LlamaDebugHandler(print_trace=True)
+        self.callback_manager = CallbackManager([self.llama_debug_handler])
+        
         self.agent = ReActAgent(
             tools=tools,
             llm=llm,
             system_prompt=system_prompt,
+            callback_manager=self.callback_manager,
+            max_iterations=50,  # Set a higher but safe limit
             verbose=True
         )
         self.context = Context(self.agent)
     
     async def run(self, query: str) -> str:
         """Execute agent with query and return response"""
+        print(f"\n[AGENT RUN] Starting agent: {self.name} with query: '{query[:100]}...'\n")
         try:
-            handler = self.agent.run(query, ctx=self.context)
-            response = await handler
+            response = await self.agent.arun(query)
             return str(response)
         except Exception as e:
+            logging.error(f"Agent '{self.name}' failed with error: {e}")
+            # Log the trace for debugging
+            print(f"--- Agent Trace for {self.name} ---")
+            self.llama_debug_handler.print_trace()
+            print("--- End Trace ---")
             return f"Agent error: {str(e)}"
+        finally:
+            # Optional: print trace even on success for debugging
+            # print(f"--- Agent Trace for {self.name} ---")
+            # self.llama_debug_handler.print_trace()
+            # print("--- End Trace ---")
+            pass
 
 # ---------------------------------------------
 # Specialized Query Engines for Different Domains
