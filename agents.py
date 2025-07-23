@@ -308,9 +308,11 @@ class AgentManager:
         try:
             # TIER 1: Laws Agent (Foundation - Most Independent)
             print(f"🏛️ [TIER 1] Running Laws Agent for case {case_id}...")
+            tier1_start = time.time()
             laws_query = f"Find relevant BNS law sections for case context: {case_context}. Classify each law by severity (High/Medium/Low) and provide relevance scores."
             laws_response = await self.run_single_agent("legal", laws_query)
             results["legal"] = laws_response
+            print(f"✅ TIER 1 completed in {time.time() - tier1_start:.2f}s")
             
             # Extract key legal insights for next tier
             legal_context = f"\n\nLEGAL FRAMEWORK IDENTIFIED:\n{laws_response[:500]}..."

@@ -42,6 +42,7 @@ class DashboardRequest(BaseModel):
     case_context: str = Field(..., description="Brief description of the case context")
     user_role: Optional[str] = Field("analyst", description="User role for permission-based filtering")
     jurisdiction: Optional[str] = Field("Maharashtra", description="Legal jurisdiction")
+    additional_context: Optional[str] = Field(None, description="Additional context for enhanced analysis (used by live cases)")
 
 class GridRequest(BaseModel):
     case_id: str
@@ -128,6 +129,7 @@ class DashboardResponse(BaseModel):
     grid_2_laws: LawsResponse
     grid_3_documents: DocumentsResponse
     grid_4_cases: PastCasesResponse
+    grid_5_live_cases: Optional['LiveCasesResponse'] = Field(None, description="Live cases analytics from Indian Kanoon API")
     generation_time: float = Field(..., description="Time taken to generate response")
     ai_confidence: float = Field(..., description="Overall AI confidence score")
 
@@ -145,18 +147,13 @@ class StreamUpdate(BaseModel):
 # Response Models - Grid 5: Live Cases Analytics
 # ---------------------------------------------
 class LiveCaseDocument(BaseModel):
-    tid: int = Field(..., description="Indian Kanoon document ID")
-    title: str = Field(..., description="Case title")
-    court: str = Field(..., description="Court name")
-    date: Optional[str] = Field(None, description="Case date")
-    bns_sections: List[str] = Field(default_factory=list, description="Relevant BNS sections")
-    similarity_score: float = Field(..., description="AI-calculated similarity score (0-1)")
-    case_outcome: Optional[str] = Field(None, description="Case outcome/judgment")
-    indian_kanoon_url: str = Field(..., description="Direct link to Indian Kanoon case")
-    summary: Optional[str] = Field(None, description="AI-generated case summary")
-    headline: Optional[str] = Field(None, description="Case headline/excerpt")
-    docsource: Optional[str] = Field(None, description="Document source")
-    docsize: Optional[int] = Field(None, description="Document size in characters")
+    title: str
+    court: str
+    date: str
+    citation: str
+    summary: str
+    similarity_score: float
+    url: str
 
 class CitationData(BaseModel):
     cites: List[str] = Field(default_factory=list, description="Cases this case cites")
@@ -175,21 +172,12 @@ class CaseAnalytics(BaseModel):
     legal_trend_summary: Optional[str] = Field(None, description="Summary of legal trends")
 
 class LiveCasesResponse(BaseModel):
-    live_cases: List[LiveCaseDocument] = Field(default_factory=list, description="Live cases from Indian Kanoon")
-    total_found: int = Field(0, description="Total cases found in search")
-    citation_network: Optional[CitationData] = Field(None, description="Citation network analysis")
-    case_analytics: Optional[CaseAnalytics] = Field(None, description="Advanced case analytics")
-    search_query: str = Field("", description="Search query used")
-    api_calls_made: int = Field(0, description="Number of API calls made")
-    context_summary: str = Field("", description="Summary of search context")
-    legal_insights: str = Field("", description="AI-generated legal insights")
-    strategic_recommendations: List[str] = Field(default_factory=list, description="Strategic recommendations")
-    generation_time: Optional[float] = Field(None, description="Time taken to generate response")
-    
-    class Config:
-        json_encoders = {
-            datetime: lambda v: v.isoformat() if v else None
-        }
+    message: str
+    status: str = "success"
+    cases: List[LiveCaseDocument] = []
+    total_cases: int = 0
+    generation_time: float = 0.0
+    api_mode: str = "demo"
 
 # ---------------------------------------------
 # Enhanced Dashboard Response with Grid 5

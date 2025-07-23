@@ -116,7 +116,7 @@ with tab1:
                     json={
                         "case_id": test_case_id,
                         "context": test_context
-                    }, timeout=30)
+                    })
                 end_time = time.time()
                 
                 if response.status_code == 200:
@@ -136,7 +136,7 @@ with tab1:
                     json={
                         "case_id": test_case_id,
                         "context": test_context
-                    }, timeout=30)
+                    })
                 end_time = time.time()
                 
                 if response.status_code == 200:
@@ -157,7 +157,7 @@ with tab1:
                     json={
                         "case_id": test_case_id,
                         "context": test_context
-                    }, timeout=30)
+                    })
                 end_time = time.time()
                 
                 if response.status_code == 200:
@@ -177,7 +177,7 @@ with tab1:
                     json={
                         "case_id": test_case_id,
                         "context": test_context
-                    }, timeout=30)
+                    })
                 end_time = time.time()
                 
                 if response.status_code == 200:
@@ -205,18 +205,18 @@ with tab2:
         
         execution_mode = st.radio(
             "Execution Strategy:",
-            ["🔄 Parallel (Fast)", "🎯 Hierarchical (Optimal)"],
-            help="Parallel: All agents run simultaneously. Hierarchical: Agents run in dependency order with context sharing."
+            ["🔄 Parallel (4 Grids - Fast)", "🎯 Hierarchical (5 Grids - Optimal)"],
+            help="Choose between parallel execution (4 grids, faster) or hierarchical execution (5 grids with Grid 5 Live Cases, better results)"
         )
         
-        if execution_mode == "🔄 Parallel (Fast)":
+        if execution_mode == "🔄 Parallel (4 Grids - Fast)":
             endpoint = "/dashboard/populate"
-            button_text = "🚀 Populate Dashboard (Parallel)"
-            description = "Running all agents simultaneously..."
+            button_text = "🔄 Populate Dashboard (4 Grids - Parallel)"
+            description = "Running 4 agents simultaneously..."
         else:
             endpoint = "/dashboard/populate-hierarchical"
-            button_text = "🎯 Populate Dashboard (Hierarchical)"
-            description = "Running agents in optimal dependency order..."
+            button_text = "🎯 Populate Dashboard (5 Grids - Hierarchical)"
+            description = "Running 5 agents in optimal dependency order with Grid 5 Live Cases..."
         
         if st.button(button_text, type="primary"):
             try:
@@ -226,7 +226,7 @@ with tab2:
                         json={
                             "case_id": case_id,
                             "case_context": case_context
-                        }, timeout=120)  # Longer timeout for hierarchical
+                        })  # No timeout - let it run as long as needed
                     end_time = time.time()
                 
                 if response.status_code == 200:
@@ -250,11 +250,49 @@ with tab2:
                         st.subheader("🏛️ Grid 4: Cases")
                         st.json(dashboard_data.get("grid_4_cases", {}))
                     
+                    # Grid 5: Live Cases (if available)
+                    if dashboard_data.get("grid_5_live_cases"):
+                        st.subheader("🔍 Grid 5: Live Cases Analytics")
+                        grid5_data = dashboard_data["grid_5_live_cases"]
+                        
+                        # Display Grid 5 metrics
+                        col1, col2, col3 = st.columns(3)
+                        with col1:
+                            st.metric("Total Cases", grid5_data.get('total_cases', 0))
+                        with col2:
+                            st.metric("API Mode", grid5_data.get('api_mode', 'demo').upper())
+                        with col3:
+                            st.metric("Status", grid5_data.get('status', 'unknown').upper())
+                        
+                        # Display message
+                        if grid5_data.get('message'):
+                            if 'LIVE' in grid5_data['message']:
+                                st.success(f"✅ {grid5_data['message']}")
+                            elif 'DEMO' in grid5_data['message']:
+                                st.warning(f"⚠️ {grid5_data['message']}")
+                            else:
+                                st.info(f"ℹ️ {grid5_data['message']}")
+                        
+                        # Display cases
+                        if grid5_data.get('cases'):
+                            st.write("**Top Relevant Cases:**")
+                            for i, case in enumerate(grid5_data['cases'][:3], 1):  # Show top 3
+                                with st.expander(f"Case {i}: {case.get('title', 'Unknown')}", expanded=False):
+                                    st.write(f"**Court:** {case.get('court', 'Unknown')}")
+                                    st.write(f"**Date:** {case.get('date', 'Unknown')}")
+                                    st.write(f"**Similarity:** {case.get('similarity_score', 0):.1%}")
+                                    st.write(f"**Summary:** {case.get('summary', 'No summary available')}")
+                        
+                        # Raw Grid 5 data
+                        with st.expander("📥 Raw Grid 5 Data", expanded=False):
+                            st.json(grid5_data)
+                    
                     # Metadata
                     st.subheader("📈 Metadata")
                     metadata = {
                         "Generation Time": f"{dashboard_data.get('generation_time', 0):.2f}s",
                         "AI Confidence": f"{dashboard_data.get('ai_confidence', 0):.2%}",
+                        "Grids Populated": "5 (with Live Cases)" if dashboard_data.get("grid_5_live_cases") else "4 (standard)",
                         "Timestamp": dashboard_data.get('timestamp', 'N/A')
                     }
                     st.json(metadata)
@@ -494,7 +532,7 @@ with tab7:
                 response = requests.post(
                     f"{api_url}/grid/live-cases",
                     json=request_data,
-                    timeout=30
+                    # No timeout - let it run as long as needed
                 )
             
             if response.status_code == 200:
