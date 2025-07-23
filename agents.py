@@ -3,6 +3,7 @@
 # ---------------------------------------------
 import os
 import asyncio
+import time
 from typing import Dict, List, Any, Optional
 from llama_index.core.agent.workflow import ReActAgent
 from llama_index.core.workflow import Context
@@ -41,19 +42,31 @@ class BaseAgent:
         """Execute agent with query and return response"""
         print(f"\n[AGENT RUN] Starting agent: {self.name} with query: '{query[:100]}...'\n")
         try:
-            response = await self.agent.arun(query)
+            # Use the correct method for ReActAgent workflow execution
+            handler = self.agent.run(query, ctx=self.context)
+            response = await handler
+            print(f"✅ Agent {self.name} completed successfully")
             return str(response)
         except Exception as e:
             logging.error(f"Agent '{self.name}' failed with error: {e}")
             # Log the trace for debugging
             print(f"--- Agent Trace for {self.name} ---")
-            self.llama_debug_handler.print_trace()
+            try:
+                if hasattr(self.llama_debug_handler, 'get_events'):
+                    events = self.llama_debug_handler.get_events()
+                    for event in events[-5:]:  # Show last 5 events
+                        print(f"  {event}")
+            except:
+                print("  Unable to retrieve trace events")
             print("--- End Trace ---")
             return f"Agent error: {str(e)}"
         finally:
             # Optional: print trace even on success for debugging
             # print(f"--- Agent Trace for {self.name} ---")
-            # self.llama_debug_handler.print_trace()
+            # if hasattr(self.llama_debug_handler, 'get_events'):
+            #     events = self.llama_debug_handler.get_events()
+            #     for event in events[-3:]:
+            #         print(f"  {event}")
             # print("--- End Trace ---")
             pass
 
