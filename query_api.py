@@ -6,8 +6,7 @@ import sys
 import logging
 from dotenv import load_dotenv
 import openai
-import pinecone
-from pinecone import Pinecone, ServerlessSpec
+from pinecone import Pinecone
 from llama_index.vector_stores.pinecone import PineconeVectorStore
 from llama_index.core import VectorStoreIndex
 from llama_index.llms.openai import OpenAI
@@ -155,11 +154,36 @@ class ChatResponse(BaseModel):
 
 # Live Cases Models moved to models.py
 
+from llama_index.core.retrievers import VectorIndexRetriever, KeywordTableSimpleRetriever, BaseRetriever
+from llama_index.core.query_engine import RetrieverQueryEngine
+from llama_index.core.schema import QueryBundle
+
+# --- Hybrid Retriever for /query endpoint ---
+class HybridRetriever(BaseRetriever):
+    def __init__(self, vector_retriever, keyword_retriever, similarity_top_k=3):
+        self.vector_retriever = vector_retriever
+        self.keyword_retriever = keyword_retriever
+        self.similarity_top_k = similarity_top_k
+
+    def _retrieve(self, query_bundle: QueryBundle):
+        vector_nodes = self.vector_retriever.retrieve(query_bundle)
+        keyword_nodes = self.keyword_retriever.retrieve(query_bundle)
+        # Merge and deduplicate by node_id
+        unique_nodes = {n.node.node_id: n for n in vector_nodes + keyword_nodes}
+        return list(unique_nodes.values())[:self.similarity_top_k]
+
+# Setup retrievers (placed after index is defined)
+vector_retriever = VectorIndexRetriever(index=index, similarity_top_k=3)
+hybrid_retriever = HybridRetriever(vector_retriever, vector_retriever, similarity_top_k=3)
+
+hybrid_query_engine = RetrieverQueryEngine(retriever=hybrid_retriever)
+
 @app.post("/query", response_model=QueryResponse)
 def query_endpoint(request: QueryRequest):
     try:
-        response = query_engine.query(request.question)
-        return QueryResponse(answer=str(response))
+        response = hybrid_query_engine.query(request.question)
+        # Return the top-k chunks as plain text
+        return QueryResponse(answer="\n\n".join([n.node.get_content() for n in response.source_nodes]))
     except Exception as e:
         logging.error(f"Error during query: {e}")
         raise HTTPException(status_code=500, detail=str(e))
