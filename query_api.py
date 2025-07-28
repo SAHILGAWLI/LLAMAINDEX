@@ -18,6 +18,7 @@ from fastapi.middleware.cors import CORSMiddleware
 # Additional imports for live cases functionality
 import asyncio
 import time
+from datetime import datetime
 import requests
 import urllib.parse
 import http.client
@@ -99,6 +100,631 @@ query_engine = index.as_query_engine()
 # ---------------------------------------------
 # FastAPI App
 app = FastAPI()
+
+# ---------------------------------------------
+# FIR Drafting Endpoint (Standards-Based)
+# ---------------------------------------------
+
+class FIRDraftRequest(BaseModel):
+    complainant_name: str
+    complainant_address: str
+    accused_name: Optional[str] = None
+    incident_date: str
+    incident_time: str
+    incident_place: str
+    incident_description: str
+    police_station: Optional[str] = None
+    additional_details: Optional[str] = None
+
+class FIRDraftResponse(BaseModel):
+    fir_text: str
+
+@app.post("/fir/draft", response_model=FIRDraftResponse)
+def draft_fir(request: FIRDraftRequest):
+    fir_template = f"""
+FIRST INFORMATION REPORT (FIR)
+------------------------------
+Police Station: {request.police_station or '[Not specified]'}
+Date: {request.incident_date}
+Time: {request.incident_time}
+Place of Occurrence: {request.incident_place}
+
+Complainant: {request.complainant_name}
+Address: {request.complainant_address}
+
+Accused: {request.accused_name or '[Unknown/Not specified]'}
+
+Incident Description:
+{request.incident_description}
+
+Additional Details:
+{request.additional_details or '[None]'}
+
+Signature: ______________________
+Date: ___________________________
+"""
+    return FIRDraftResponse(fir_text=fir_template.strip())
+
+# ---------------------------------------------
+# FIR Intelligence Dashboard (3-Grid Modular)
+# ---------------------------------------------
+
+from typing import List, Optional, Dict, Union, Any
+
+class FIRIntelligenceRequest(BaseModel):
+    fir_fields: Dict[str, str]  # All FIR fields submitted by the officer
+
+class CompletenessItem(BaseModel):
+    field: str
+    field_key: str
+    status: str
+    priority: str
+    suggestion: str
+    required: bool
+
+class FIRIntelligenceResponse(BaseModel):
+    fir_text: str
+    grid_1_sections: List[str]
+    grid_2_completeness: List[CompletenessItem]
+    grid_3_best_practices: List[str]
+    generation_time: float
+    ai_confidence: float
+
+@app.post("/fir/intelligence-dashboard", response_model=FIRIntelligenceResponse)
+def fir_intelligence_dashboard(request: FIRIntelligenceRequest):
+    """
+    Enhanced FIR Intelligence Dashboard with comprehensive analysis
+    """
+    start_time = time.time()
+    fir_fields = request.fir_fields
+
+    # --- Grid 1: Legal Section & Citation Engine ---
+    # Use only real BNS sections from the laws grid output
+    laws_grid = fir_fields.get("legal_sections", "")
+    grid_1_sections = suggest_sections_from_laws_grid(laws_grid)
+
+    # If no sections from laws grid, try to extract from incident description
+    if not grid_1_sections:
+        incident_context = fir_fields.get("incident_description", "")
+        grid_1_sections = suggest_sections_from_laws_grid(incident_context)
+
+    # --- Grid 2: Completeness & Risk Analyzer ---
+    grid_2_completeness = check_completeness(fir_fields)
+
+    # --- Grid 3: Best Practices & Pattern Intelligence ---
+    grid_3_best_practices = suggest_best_practices(fir_fields)
+
+    # Generate enhanced FIR text with all intelligence
+    enhanced_fir_fields = {
+        **fir_fields,
+        "bns_sections": grid_1_sections,
+        "completeness_score": calculate_completeness_score(grid_2_completeness),
+        "intelligence_enhanced": True
+    }
+    fir_text = generate_fir_text(enhanced_fir_fields)
+
+    generation_time = round(time.time() - start_time, 2)
+
+    # Calculate dynamic AI confidence based on data quality
+    ai_confidence = calculate_ai_confidence(fir_fields, grid_1_sections, grid_2_completeness)
+
+    return FIRIntelligenceResponse(
+        fir_text=fir_text,
+        grid_1_sections=grid_1_sections,
+        grid_2_completeness=grid_2_completeness,
+        grid_3_best_practices=grid_3_best_practices,
+        generation_time=generation_time,
+        ai_confidence=ai_confidence
+    )
+
+def calculate_completeness_score(completeness_data: List[Dict[str, str]]) -> float:
+    """
+    Calculate overall completeness score for FIR
+    """
+    if not completeness_data:
+        return 0.0
+
+    total_fields = len(completeness_data)
+    complete_fields = sum(1 for item in completeness_data if item.get('status') == 'complete')
+
+    return round(complete_fields / total_fields, 2)
+
+def calculate_ai_confidence(fir_fields: Dict[str, str], sections: List[str], completeness: List[Dict[str, str]]) -> float:
+    """
+    Calculate dynamic AI confidence based on data quality and completeness
+    """
+    confidence_factors = []
+
+    # Factor 1: Completeness score (40% weight)
+    completeness_score = calculate_completeness_score(completeness)
+    confidence_factors.append(completeness_score * 0.4)
+
+    # Factor 2: Incident description quality (30% weight)
+    incident_desc = fir_fields.get("incident_description", "")
+    desc_quality = min(len(incident_desc) / 100, 1.0) if incident_desc else 0.0  # Normalize to 100 chars
+    confidence_factors.append(desc_quality * 0.3)
+
+    # Factor 3: Legal sections identified (20% weight)
+    sections_factor = min(len(sections) / 3, 1.0) if sections else 0.0  # Normalize to 3 sections
+    confidence_factors.append(sections_factor * 0.2)
+
+    # Factor 4: Essential fields presence (10% weight)
+    essential_fields = ['complainant_name', 'incident_date', 'incident_place']
+    essential_present = sum(1 for field in essential_fields if fir_fields.get(field, '').strip())
+    essential_factor = essential_present / len(essential_fields)
+    confidence_factors.append(essential_factor * 0.1)
+
+    # Calculate final confidence
+    final_confidence = sum(confidence_factors)
+
+    # Ensure confidence is between 0.1 and 0.99
+    return max(0.1, min(0.99, round(final_confidence, 2)))
+
+def suggest_sections_from_laws_grid(laws_grid: str) -> List[str]:
+    """
+    Enhanced BNS section extraction with intelligent analysis
+    """
+    import re
+
+    # Enhanced regex patterns for various BNS section formats
+    patterns = [
+        r"\*\*Section\s+(\d+[A-Z]?)\*\*",  # **Section 304A**
+        r"Section\s+(\d+[A-Z]?)",          # Section 289
+        r"BNS\s+(\d+[A-Z]?)",              # BNS 338
+        r"(\d+[A-Z]?)\s*BNS",              # 304A BNS
+        r"Bharatiya\s+Nyaya\s+Sanhita\s+(\d+[A-Z]?)",  # Full name format
+    ]
+
+    sections = set()
+    for pattern in patterns:
+        matches = re.findall(pattern, laws_grid, re.IGNORECASE)
+        sections.update(match.strip() for match in matches if match.strip())
+
+    # Context-based section suggestions if no sections found
+    if not sections:
+        sections = suggest_contextual_bns_sections(laws_grid)
+
+    # Return formatted BNS codes with descriptions
+    return format_bns_sections_with_descriptions(sorted(sections)) if sections else []
+
+def suggest_contextual_bns_sections(context: str) -> set:
+    """
+    Suggest BNS sections based on context keywords when no explicit sections found
+    """
+    context_lower = context.lower()
+    contextual_sections = set()
+
+    # Crime type to BNS section mapping
+    crime_mappings = {
+        # Violent crimes
+        'murder': ['302', '300', '299'],
+        'assault': ['322', '323', '324', '325', '326'],
+        'rape': ['375', '376'],
+        'kidnapping': ['359', '360', '361', '362'],
+        'robbery': ['390', '392', '393', '394'],
+        'theft': ['378', '379', '380', '381'],
+
+        # Property crimes
+        'burglary': ['449', '450', '451', '452'],
+        'cheating': ['415', '416', '417', '418', '419', '420'],
+        'fraud': ['415', '420', '463', '464', '465'],
+        'forgery': ['463', '464', '465', '466', '467', '468'],
+
+        # Medical/Professional negligence
+        'negligence': ['304A', '336', '337', '338'],
+        'medical': ['304A', '336', '337', '338'],
+        'malpractice': ['304A', '336', '337', '338'],
+
+        # Traffic/Vehicle related
+        'accident': ['279', '304A', '337', '338'],
+        'rash': ['279', '336', '337', '338'],
+        'negligent': ['279', '304A', '336', '337', '338'],
+
+        # Cyber crimes
+        'cyber': ['66', '66A', '66B', '66C', '66D'],  # IT Act sections
+        'hacking': ['66', '66B', '66C'],
+        'phishing': ['66C', '66D'],
+
+        # Corruption
+        'bribery': ['7', '8', '9', '10'],  # Prevention of Corruption Act
+        'corruption': ['7', '8', '9', '10', '11', '12'],
+
+        # Domestic violence
+        'domestic': ['498A', '323', '324', '325', '326'],
+        'dowry': ['498A', '304B', '406'],
+
+        # Drug related
+        'drugs': ['8', '15', '20', '21', '22'],  # NDPS Act sections
+        'narcotics': ['8', '15', '20', '21', '22'],
+    }
+
+    for keyword, sections in crime_mappings.items():
+        if keyword in context_lower:
+            contextual_sections.update(sections)
+
+    return contextual_sections
+
+def format_bns_sections_with_descriptions(sections: List[str]) -> List[str]:
+    """
+    Format BNS sections with brief descriptions for better understanding
+    """
+    # BNS section descriptions (key sections)
+    section_descriptions = {
+        '302': 'Murder',
+        '304A': 'Causing death by negligence',
+        '323': 'Voluntarily causing hurt',
+        '324': 'Voluntarily causing hurt by dangerous weapons',
+        '375': 'Rape',
+        '378': 'Theft',
+        '420': 'Cheating and dishonestly inducing delivery of property',
+        '498A': 'Husband or relative subjecting woman to cruelty',
+        '279': 'Rash driving or riding on a public way',
+        '336': 'Act endangering life or personal safety of others',
+        '337': 'Causing hurt by act endangering life',
+        '338': 'Causing grievous hurt by act endangering life',
+        '415': 'Cheating',
+        '463': 'Forgery',
+        '506': 'Criminal intimidation',
+    }
+
+    formatted_sections = []
+    for section in sections:
+        description = section_descriptions.get(section, 'General offense')
+        formatted_sections.append(f"BNS {section} - {description}")
+
+    return formatted_sections
+
+def check_completeness(fir_fields: Dict[str, str]) -> List[Dict[str, str]]:
+    """
+    Enhanced completeness checking with detailed validation and suggestions
+    """
+    completeness_checks = []
+
+    # Essential fields with validation
+    essential_fields = {
+        'complainant_name': {
+            'label': 'Complainant Name',
+            'required': True,
+            'validation': lambda x: len(x.strip()) >= 2 if x else False,
+            'suggestion': 'Full name of the person filing the complaint'
+        },
+        'complainant_address': {
+            'label': 'Complainant Address',
+            'required': True,
+            'validation': lambda x: len(x.strip()) >= 10 if x else False,
+            'suggestion': 'Complete address with locality, city, and pin code'
+        },
+        'incident_date': {
+            'label': 'Incident Date',
+            'required': True,
+            'validation': lambda x: bool(x and x.strip()),
+            'suggestion': 'Date when the incident occurred (DD/MM/YYYY format)'
+        },
+        'incident_time': {
+            'label': 'Incident Time',
+            'required': True,
+            'validation': lambda x: bool(x and x.strip()),
+            'suggestion': 'Approximate time of incident (24-hour format preferred)'
+        },
+        'incident_place': {
+            'label': 'Place of Occurrence',
+            'required': True,
+            'validation': lambda x: len(x.strip()) >= 5 if x else False,
+            'suggestion': 'Specific location where incident occurred'
+        },
+        'incident_description': {
+            'label': 'Incident Description',
+            'required': True,
+            'validation': lambda x: len(x.strip()) >= 20 if x else False,
+            'suggestion': 'Detailed description of what happened (minimum 20 characters)'
+        },
+        'police_station': {
+            'label': 'Police Station',
+            'required': True,
+            'validation': lambda x: bool(x and x.strip()),
+            'suggestion': 'Name of the police station where FIR is being filed'
+        }
+    }
+
+    # Optional but recommended fields
+    optional_fields = {
+        'accused_name': {
+            'label': 'Accused Name',
+            'required': False,
+            'validation': lambda x: len(x.strip()) >= 2 if x else True,
+            'suggestion': 'Name of accused person (if known)'
+        },
+        'witness_details': {
+            'label': 'Witness Details',
+            'required': False,
+            'validation': lambda x: True,
+            'suggestion': 'Names and contact details of witnesses (if any)'
+        },
+        'additional_details': {
+            'label': 'Additional Details',
+            'required': False,
+            'validation': lambda x: True,
+            'suggestion': 'Any other relevant information'
+        }
+    }
+
+    # Check essential fields
+    for field_key, field_info in essential_fields.items():
+        value = fir_fields.get(field_key, '')
+        is_valid = field_info['validation'](value)
+
+        status = 'complete' if is_valid else ('missing' if not value else 'incomplete')
+        priority = 'high' if not is_valid else 'low'
+
+        completeness_checks.append({
+            'field': field_info['label'],
+            'field_key': field_key,
+            'status': status,
+            'priority': priority,
+            'suggestion': field_info['suggestion'],
+            'required': field_info['required']
+        })
+
+    # Check optional fields
+    for field_key, field_info in optional_fields.items():
+        value = fir_fields.get(field_key, '')
+        is_present = bool(value and value.strip())
+
+        completeness_checks.append({
+            'field': field_info['label'],
+            'field_key': field_key,
+            'status': 'complete' if is_present else 'optional',
+            'priority': 'low',
+            'suggestion': field_info['suggestion'],
+            'required': field_info['required']
+        })
+
+    return completeness_checks
+
+def suggest_best_practices(fir_fields: Dict[str, str]) -> List[str]:
+    """
+    Enhanced best practices suggestions based on comprehensive analysis
+    """
+    tips = []
+    incident_desc = fir_fields.get("incident_description", "").lower()
+
+    # Medical/injury related suggestions
+    if any(keyword in incident_desc for keyword in ['injury', 'hurt', 'wound', 'blood', 'hospital', 'medical']):
+        tips.extend([
+            "🏥 Obtain and attach medical examination report if victim was injured",
+            "📋 Include details of treatment received and medical expenses",
+            "🩺 Mention the name of doctor/hospital where treatment was provided"
+        ])
+
+    # Evidence collection suggestions
+    if any(keyword in incident_desc for keyword in ['theft', 'robbery', 'burglary', 'stolen']):
+        tips.extend([
+            "📝 Prepare detailed list of stolen/missing items with approximate values",
+            "🔍 Preserve any available CCTV footage or photographs",
+            "📱 Include serial numbers of electronic items if available"
+        ])
+
+    # Witness related suggestions
+    if not fir_fields.get("witness_details"):
+        tips.append("👥 Include witness details if any person saw the incident")
+
+    # Accused information suggestions
+    if not fir_fields.get("accused_name") or fir_fields.get("accused_name", "").strip() == "":
+        tips.extend([
+            "🔍 Provide description of accused if name is unknown (height, build, clothing, etc.)",
+            "📍 Mention if accused is known to complainant or is a stranger"
+        ])
+
+    # Vehicle related suggestions
+    if any(keyword in incident_desc for keyword in ['vehicle', 'car', 'bike', 'accident', 'hit']):
+        tips.extend([
+            "🚗 Include vehicle registration number if available",
+            "📋 Attach driving license and vehicle registration documents",
+            "🏥 Obtain medical examination report for accident cases"
+        ])
+
+    # Cyber crime suggestions
+    if any(keyword in incident_desc for keyword in ['online', 'internet', 'cyber', 'fraud', 'phishing', 'hacking']):
+        tips.extend([
+            "💻 Preserve screenshots of fraudulent messages/websites",
+            "📱 Include transaction details and bank statements",
+            "📧 Forward suspicious emails/messages to cyber crime cell"
+        ])
+
+    # Financial fraud suggestions
+    if any(keyword in incident_desc for keyword in ['money', 'payment', 'bank', 'cheque', 'fraud', 'cheating']):
+        tips.extend([
+            "🏦 Attach bank statements and transaction records",
+            "📄 Include copies of cheques, receipts, or agreements",
+            "💳 Block cards/accounts immediately if compromised"
+        ])
+
+    # Domestic violence suggestions
+    if any(keyword in incident_desc for keyword in ['domestic', 'husband', 'wife', 'family', 'dowry']):
+        tips.extend([
+            "🏥 Obtain medical examination report for injuries",
+            "📞 Contact women helpline (181) for additional support",
+            "👥 Include details of family members who witnessed the incident"
+        ])
+
+    # General documentation suggestions
+    tips.extend([
+        "📋 Keep copies of all documents submitted with FIR",
+        "📞 Note down the FIR number and investigating officer's contact details",
+        "⏰ Follow up regularly on investigation progress"
+    ])
+
+    # Time-sensitive suggestions
+    current_hour = datetime.now().hour
+    if current_hour < 6 or current_hour > 22:
+        tips.append("🕐 Consider filing FIR during regular hours for faster processing")
+
+    return tips[:10]  # Limit to top 10 most relevant suggestions
+
+def generate_fir_text(fir_fields: Dict[str, str]) -> str:
+    """
+    Generate professionally formatted FIR document with legal compliance
+    """
+    from datetime import datetime
+
+    # Extract and format BNS sections
+    bns_sections = fir_fields.get("bns_sections", [])
+    if isinstance(bns_sections, str):
+        bns_sections = [bns_sections] if bns_sections else []
+
+    # Generate FIR number (placeholder - in real system this would be auto-generated)
+    current_year = datetime.now().year
+    fir_number = f"FIR-{current_year}-{datetime.now().strftime('%m%d%H%M')}"
+
+    # Format date and time properly
+    incident_date = fir_fields.get('incident_date', '[Not specified]')
+    incident_time = fir_fields.get('incident_time', '[Not specified]')
+
+    # Create professional header
+    header = f"""
+═══════════════════════════════════════════════════════════════════
+                    FIRST INFORMATION REPORT (FIR)
+                         Under Section 154 Cr.P.C.
+═══════════════════════════════════════════════════════════════════
+
+FIR No.: {fir_number}
+Police Station: {fir_fields.get('police_station', '[Not specified]')}
+District: {fir_fields.get('district', '[To be filled]')}
+Date of Registration: {datetime.now().strftime('%d/%m/%Y')}
+Time of Registration: {datetime.now().strftime('%H:%M')}
+
+───────────────────────────────────────────────────────────────────
+                           INCIDENT DETAILS
+───────────────────────────────────────────────────────────────────
+
+Date of Occurrence: {incident_date}
+Time of Occurrence: {incident_time}
+Place of Occurrence: {fir_fields.get('incident_place', '[Not specified]')}
+"""
+
+    # Complainant details section
+    complainant_section = f"""
+───────────────────────────────────────────────────────────────────
+                         COMPLAINANT DETAILS
+───────────────────────────────────────────────────────────────────
+
+Name: {fir_fields.get('complainant_name', '[Not specified]')}
+Address: {fir_fields.get('complainant_address', '[Not specified]')}
+Contact Number: {fir_fields.get('complainant_phone', '[Not provided]')}
+Relationship to Incident: {fir_fields.get('complainant_relation', 'Direct complainant')}
+"""
+
+    # Accused details section
+    accused_name = fir_fields.get('accused_name', '').strip()
+    if not accused_name or accused_name.lower() in ['unknown', 'not known', '']:
+        accused_info = "[Unknown/Unidentified person(s)]"
+        accused_description = fir_fields.get('accused_description', '[No description available]')
+        accused_section = f"""
+───────────────────────────────────────────────────────────────────
+                           ACCUSED DETAILS
+───────────────────────────────────────────────────────────────────
+
+Name: {accused_info}
+Description: {accused_description}
+Address: [Unknown]
+"""
+    else:
+        accused_section = f"""
+───────────────────────────────────────────────────────────────────
+                           ACCUSED DETAILS
+───────────────────────────────────────────────────────────────────
+
+Name: {accused_name}
+Address: {fir_fields.get('accused_address', '[Not specified]')}
+Age: {fir_fields.get('accused_age', '[Not specified]')}
+"""
+
+    # Incident description section
+    incident_description = fir_fields.get('incident_description', '[Not specified]')
+    description_section = f"""
+───────────────────────────────────────────────────────────────────
+                        DETAILS OF INCIDENT
+───────────────────────────────────────────────────────────────────
+
+{incident_description}
+"""
+
+    # Additional details section
+    additional_details = fir_fields.get('additional_details', '').strip()
+    if additional_details and additional_details.lower() not in ['none', '[none]', '']:
+        additional_section = f"""
+───────────────────────────────────────────────────────────────────
+                        ADDITIONAL INFORMATION
+───────────────────────────────────────────────────────────────────
+
+{additional_details}
+"""
+    else:
+        additional_section = ""
+
+    # Witness details section
+    witness_details = fir_fields.get('witness_details', '').strip()
+    if witness_details and witness_details.lower() not in ['none', '[none]', '']:
+        witness_section = f"""
+───────────────────────────────────────────────────────────────────
+                          WITNESS DETAILS
+───────────────────────────────────────────────────────────────────
+
+{witness_details}
+"""
+    else:
+        witness_section = ""
+
+    # Legal sections
+    if bns_sections:
+        legal_section = f"""
+───────────────────────────────────────────────────────────────────
+                    APPLICABLE LEGAL PROVISIONS
+───────────────────────────────────────────────────────────────────
+
+Sections under Bharatiya Nyaya Sanhita (BNS):
+{chr(10).join(f"• {section}" for section in bns_sections)}
+"""
+    else:
+        legal_section = f"""
+───────────────────────────────────────────────────────────────────
+                    APPLICABLE LEGAL PROVISIONS
+───────────────────────────────────────────────────────────────────
+
+[To be determined by investigating officer based on evidence]
+"""
+
+    # Footer section
+    footer = f"""
+───────────────────────────────────────────────────────────────────
+                           CERTIFICATION
+───────────────────────────────────────────────────────────────────
+
+I hereby certify that the above information is true to the best of my
+knowledge and belief. I understand that providing false information
+is an offense under the law.
+
+Complainant's Signature: _________________________
+Date: {datetime.now().strftime('%d/%m/%Y')}
+
+Received by:
+Station House Officer: _________________________
+Signature: _________________________
+Date: {datetime.now().strftime('%d/%m/%Y')}
+Time: {datetime.now().strftime('%H:%M')}
+
+───────────────────────────────────────────────────────────────────
+Note: This FIR has been generated using AI assistance. Please verify
+all details before final submission.
+═══════════════════════════════════════════════════════════════════
+"""
+
+    # Combine all sections
+    complete_fir = (header + complainant_section + accused_section +
+                   description_section + additional_section + witness_section +
+                   legal_section + footer)
+
+    return complete_fir.strip()
 
 # Add CORS middleware for browser access (Next.js compatible)
 # Environment-driven CORS configuration for production safety
@@ -382,8 +1008,24 @@ async def populate_optimized_dashboard_endpoint(request: DashboardRequest):
         # Use working agents implementation for faster execution
         result = await populate_optimized_dashboard(request.case_id, request.case_context)
         
-        logger.info(f"✅ [OPTIMIZED] 3-grid dashboard completed in {result.get('generation_time', 0):.2f}s")
-        
+        # --- FIR Intelligence Grid Integration ---
+        fir_fields = {
+            "complainant_name": "[Auto]",  # Placeholder; ideally extract or prompt for this
+            "incident_description": request.case_context,
+            # Optionally enrich with legal sections, compliance gaps, etc.
+        }
+        # If legal grid output is available, add to FIR fields
+        if "legal" in result:
+            fir_fields["legal_sections"] = str(result["legal"])
+            # Extract and inject real BNS codes for FIR draft
+            fir_fields["bns_sections"] = suggest_sections_from_laws_grid(str(result["legal"]))
+        if "compliance" in result:
+            fir_fields["compliance_summary"] = str(result["compliance"])
+
+        fir_grid = fir_intelligence_dashboard(FIRIntelligenceRequest(fir_fields=fir_fields))
+        result["grid_4_fir_intelligence"] = fir_grid.dict()
+
+        logger.info(f"✅ [OPTIMIZED] 4-grid dashboard completed in {result.get('generation_time', 0):.2f}s")
         return result
         
     except Exception as e:

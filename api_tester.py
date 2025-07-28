@@ -80,15 +80,16 @@ with st.sidebar:
             st.error(f"❌ Health check error: {e}")
 
 # Main content area with tabs
-tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8 = st.tabs([
-    "🤖 Individual Agents", 
-    "📊 Dashboard Population", 
+tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8, tab9 = st.tabs([
+    "🤖 Individual Agents",
+    "📊 Dashboard Population",
     "🚀 OPTIMIZED 3-Grid",
-    "💬 Chat APIs", 
+    "💬 Chat APIs",
     "📈 Performance Monitoring",
     "📡 Streaming APIs",
     "🔧 Advanced Testing",
-    "🏛️ Grid 5: Live Cases"
+    "🏛️ Grid 5: Live Cases",
+    "📝 FIR Intelligence"
 ])
 
 # Tab 1: ReAct Agents Testing
@@ -305,7 +306,7 @@ with tab2:
 
 # Tab 3: OPTIMIZED 3-GRID DASHBOARD
 with tab3:
-    st.header("🚀 OPTIMIZED 3-GRID DASHBOARD - 3-5x FASTER!")
+    st.header("🚀 OPTIMIZED 4-GRID DASHBOARD - FIR Intelligence Enabled!")
     
     # Performance comparison banner
     col1, col2, col3 = st.columns(3)
@@ -389,7 +390,7 @@ with tab3:
         show_metadata = st.checkbox("Show Performance Metadata", value=True)
     
     # Test button
-    if st.button("🚀 RUN OPTIMIZED 3-GRID DASHBOARD", type="primary", use_container_width=True):
+    if st.button("🚀 RUN OPTIMIZED 4-GRID DASHBOARD", type="primary", use_container_width=True):
         if case_context and case_id:
             try:
                 with st.spinner("⚡ Running optimized 3-grid dashboard (15-30s)..."):
@@ -424,7 +425,7 @@ with tab3:
                             with col1:
                                 st.metric("⏱️ Total Time", f"{execution_time:.2f}s")
                             with col2:
-                                st.metric("🎯 Grid Count", result.get("grid_count", 3))
+                                st.metric("🎯 Grid Count", 4)
                             with col3:
                                 st.metric("🤖 AI Confidence", f"{result.get('ai_confidence', 0.9):.1%}")
                             with col4:
@@ -438,7 +439,7 @@ with tab3:
                         st.markdown("---")
                         
                         # Display results in tabs
-                        grid_tab1, grid_tab2, grid_tab3 = st.tabs(["🏛️ Legal Compliance", "⚖️ BNS Laws", "🔍 Live Cases"])
+                        grid_tab1, grid_tab2, grid_tab3, grid_tab4 = st.tabs(["🏛️ Legal Compliance", "⚖️ BNS Laws", "🔍 Live Cases", "📝 FIR Intelligence"])
                         
                         with grid_tab1:
                             st.subheader("🏛️ Grid 1: Legal Compliance Checklist")
@@ -490,6 +491,21 @@ with tab3:
                                                 st.link_button("🔗 View Case", case['url'])
                             else:
                                 st.warning("⚠️ No live cases data available (check Indian Kanoon API token)")
+                        
+                        with grid_tab4:
+                            st.subheader("📝 Grid 4: FIR Intelligence")
+                            fir_data = result.get("grid_4_fir_intelligence", {})
+                            if fir_data:
+                                st.markdown("**FIR Draft:**")
+                                st.code(fir_data.get("fir_text", "No FIR draft available."), language="markdown")
+                                st.markdown("**Section Suggestions:**")
+                                st.write(fir_data.get("grid_1_sections", []))
+                                st.markdown("**Completeness Checklist:**")
+                                st.write(fir_data.get("grid_2_completeness", []))
+                                st.markdown("**Best Practices & Tips:**")
+                                st.write(fir_data.get("grid_3_best_practices", []))
+                            else:
+                                st.warning("⚠️ No FIR Intelligence data available.")
                         
                         # Raw JSON view
                         with st.expander("🔍 View Raw JSON Response"):
@@ -826,3 +842,505 @@ with tab8:
                     st.error(f"❌ Error: {response.status_code}")
             except Exception as e:
                 st.error(f"❌ Error: {e}")
+
+# Tab 9: FIR Intelligence Testing
+with tab9:
+    st.header("📝 FIR Intelligence Testing")
+    st.markdown("Comprehensive testing for FIR drafting and intelligence features")
+
+    # Create sub-tabs for different FIR testing scenarios
+    fir_tab1, fir_tab2, fir_tab3, fir_tab4 = st.tabs([
+        "📋 Basic FIR Draft",
+        "🧠 FIR Intelligence Dashboard",
+        "🔍 Scenario Testing",
+        "📊 Batch Testing"
+    ])
+
+    # Tab 9.1: Basic FIR Draft Testing
+    with fir_tab1:
+        st.subheader("📋 Basic FIR Draft Testing")
+        st.markdown("Test the basic FIR drafting endpoint with standard fields")
+
+        with st.form("basic_fir_form"):
+            col1, col2 = st.columns(2)
+
+            with col1:
+                complainant_name = st.text_input("Complainant Name", "Rahul Sharma")
+                complainant_address = st.text_area("Complainant Address", "123 Main Street, Sector 15, Mumbai, Maharashtra - 400001")
+                complainant_phone = st.text_input("Contact Number", "+91-9876543210")
+                incident_date = st.date_input("Incident Date")
+                incident_time = st.time_input("Incident Time")
+
+            with col2:
+                incident_place = st.text_input("Place of Occurrence", "Near City Park, Bandra West, Mumbai")
+                police_station = st.text_input("Police Station", "Bandra Police Station")
+                accused_name = st.text_input("Accused Name (if known)", "")
+                accused_description = st.text_area("Accused Description", "Unknown person, approximately 25-30 years old")
+
+            incident_description = st.text_area(
+                "Incident Description",
+                "The complainant was walking in the park when an unknown person snatched his mobile phone and wallet. The accused fled on a motorcycle.",
+                height=100
+            )
+            additional_details = st.text_area("Additional Details", "CCTV cameras may have captured the incident")
+
+            submit_basic = st.form_submit_button("🚀 Generate Basic FIR", type="primary")
+
+        if submit_basic:
+            payload = {
+                "complainant_name": complainant_name,
+                "complainant_address": complainant_address,
+                "complainant_phone": complainant_phone,
+                "accused_name": accused_name,
+                "accused_description": accused_description,
+                "incident_date": str(incident_date),
+                "incident_time": str(incident_time),
+                "incident_place": incident_place,
+                "incident_description": incident_description,
+                "police_station": police_station,
+                "additional_details": additional_details
+            }
+
+            with st.spinner("Generating FIR..."):
+                try:
+                    response = requests.post(f"{api_url}/fir/draft", json=payload, timeout=30)
+                    if response.status_code == 200:
+                        fir_data = response.json()
+                        st.success("✅ FIR Generated Successfully!")
+                        st.subheader("📄 Generated FIR Document")
+                        st.code(fir_data["fir_text"], language="text")
+
+                        # Download button
+                        st.download_button(
+                            label="📥 Download FIR",
+                            data=fir_data["fir_text"],
+                            file_name=f"FIR_{complainant_name.replace(' ', '_')}_{incident_date}.txt",
+                            mime="text/plain"
+                        )
+                    else:
+                        st.error(f"❌ Error {response.status_code}: {response.text}")
+                except Exception as e:
+                    st.error(f"❌ Request failed: {e}")
+
+    # Tab 9.2: FIR Intelligence Dashboard Testing
+    with fir_tab2:
+        st.subheader("🧠 FIR Intelligence Dashboard Testing")
+        st.markdown("Test the advanced FIR intelligence features with legal analysis")
+
+        with st.form("intelligence_fir_form"):
+            col1, col2 = st.columns(2)
+
+            with col1:
+                int_complainant_name = st.text_input("Complainant Name", "Dr. Priya Patel", key="int_complainant")
+                int_complainant_address = st.text_area("Complainant Address", "456 Medical Colony, Andheri East, Mumbai - 400069", key="int_address")
+                int_incident_date = st.date_input("Incident Date", key="int_date")
+                int_incident_time = st.time_input("Incident Time", key="int_time")
+                int_incident_place = st.text_input("Place of Occurrence", "City Hospital, Operation Theater 3", key="int_place")
+
+            with col2:
+                int_police_station = st.text_input("Police Station", "Andheri Police Station", key="int_station")
+                int_accused_name = st.text_input("Accused Name", "Dr. Rajesh Kumar", key="int_accused")
+                int_witness_details = st.text_area("Witness Details", "Nurse Sunita Rao, Anesthesiologist Dr. Mehta", key="int_witness")
+
+            # Predefined scenarios for testing
+            scenario = st.selectbox("Select Test Scenario", [
+                "Custom",
+                "Medical Negligence",
+                "Cyber Fraud",
+                "Vehicle Accident",
+                "Domestic Violence",
+                "Theft/Robbery",
+                "Assault Case"
+            ])
+
+            # Set default values based on scenario
+            if scenario == "Medical Negligence":
+                default_desc = "During a routine surgery, the accused doctor failed to follow proper medical protocols, resulting in complications and patient harm. The patient suffered additional injuries due to negligent surgical procedures."
+                default_legal = "Medical negligence case involving surgical malpractice and violation of medical standards"
+            elif scenario == "Cyber Fraud":
+                default_desc = "The complainant received fraudulent messages claiming to be from the bank, asking for OTP and personal details. Money was transferred from the account without authorization."
+                default_legal = "Cyber fraud case involving phishing and unauthorized financial transactions"
+            elif scenario == "Vehicle Accident":
+                default_desc = "The accused was driving rashly and hit the complainant's vehicle, causing injuries and property damage. The accused fled from the scene without providing assistance."
+                default_legal = "Traffic accident case involving rash driving and hit-and-run"
+            else:
+                default_desc = incident_description if 'incident_description' in locals() else ""
+                default_legal = ""
+
+            int_incident_description = st.text_area(
+                "Incident Description",
+                default_desc,
+                height=120,
+                key="int_description"
+            )
+
+            int_legal_sections = st.text_area(
+                "Legal Context (from dashboard)",
+                default_legal,
+                help="This simulates legal analysis from the dashboard grids",
+                key="int_legal"
+            )
+
+            int_additional_details = st.text_area("Additional Details", key="int_additional")
+
+            submit_intelligence = st.form_submit_button("🧠 Generate Intelligence FIR", type="primary")
+
+        if submit_intelligence:
+            fir_fields = {
+                "complainant_name": int_complainant_name,
+                "complainant_address": int_complainant_address,
+                "incident_date": str(int_incident_date),
+                "incident_time": str(int_incident_time),
+                "incident_place": int_incident_place,
+                "incident_description": int_incident_description,
+                "police_station": int_police_station,
+                "accused_name": int_accused_name,
+                "witness_details": int_witness_details,
+                "additional_details": int_additional_details,
+                "legal_sections": int_legal_sections
+            }
+
+            payload = {"fir_fields": fir_fields}
+
+            with st.spinner("Analyzing FIR with AI Intelligence..."):
+                try:
+                    start_time = time.time()
+                    response = requests.post(f"{api_url}/fir/intelligence-dashboard", json=payload, timeout=60)
+                    end_time = time.time()
+
+                    if response.status_code == 200:
+                        data = response.json()
+                        st.success(f"✅ FIR Intelligence Analysis Complete! ({end_time - start_time:.2f}s)")
+
+                        # Display results in organized tabs
+                        intel_tab1, intel_tab2, intel_tab3, intel_tab4, intel_tab5 = st.tabs([
+                            "📄 FIR Document",
+                            "⚖️ Legal Sections",
+                            "✅ Completeness",
+                            "💡 Best Practices",
+                            "📊 Analysis Metrics"
+                        ])
+
+                        with intel_tab1:
+                            st.subheader("📄 Generated FIR Document")
+                            st.code(data.get("fir_text", "No FIR text available"), language="text")
+
+                            # Download button
+                            st.download_button(
+                                label="📥 Download Intelligence FIR",
+                                data=data.get("fir_text", ""),
+                                file_name=f"Intelligence_FIR_{int_complainant_name.replace(' ', '_')}_{int_incident_date}.txt",
+                                mime="text/plain"
+                            )
+
+                        with intel_tab2:
+                            st.subheader("⚖️ Suggested Legal Sections")
+                            sections = data.get("grid_1_sections", [])
+                            if sections:
+                                for section in sections:
+                                    st.write(f"• {section}")
+                            else:
+                                st.warning("No legal sections identified")
+
+                        with intel_tab3:
+                            st.subheader("✅ Completeness Analysis")
+                            completeness = data.get("grid_2_completeness", [])
+                            if completeness:
+                                for item in completeness:
+                                    status = item.get("status", "unknown")
+                                    field = item.get("field", "Unknown Field")
+                                    priority = item.get("priority", "medium")
+
+                                    if status == "complete":
+                                        st.success(f"✅ {field}")
+                                    elif status == "missing":
+                                        st.error(f"❌ {field} - {item.get('suggestion', 'Required field')}")
+                                    elif status == "incomplete":
+                                        st.warning(f"⚠️ {field} - {item.get('suggestion', 'Needs improvement')}")
+                                    else:
+                                        st.info(f"ℹ️ {field} - {item.get('suggestion', 'Optional field')}")
+                            else:
+                                st.warning("No completeness data available")
+
+                        with intel_tab4:
+                            st.subheader("💡 Best Practices & Recommendations")
+                            practices = data.get("grid_3_best_practices", [])
+                            if practices:
+                                for practice in practices:
+                                    st.write(f"• {practice}")
+                            else:
+                                st.info("No specific recommendations for this case")
+
+                        with intel_tab5:
+                            st.subheader("📊 Analysis Metrics")
+                            col1, col2, col3 = st.columns(3)
+
+                            with col1:
+                                st.metric("Generation Time", f"{data.get('generation_time', 0):.2f}s")
+
+                            with col2:
+                                confidence = data.get('ai_confidence', 0)
+                                st.metric("AI Confidence", f"{confidence:.1%}")
+
+                            with col3:
+                                sections_count = len(data.get('grid_1_sections', []))
+                                st.metric("Legal Sections", sections_count)
+
+                            # Raw JSON for debugging
+                            with st.expander("🔍 Raw Response Data"):
+                                st.json(data)
+
+                    else:
+                        st.error(f"❌ Error {response.status_code}: {response.text}")
+                except Exception as e:
+                    st.error(f"❌ Request failed: {e}")
+                    st.info("💡 Make sure the backend server is running and accessible")
+
+    # Tab 9.3: Scenario Testing
+    with fir_tab3:
+        st.subheader("🔍 Predefined Scenario Testing")
+        st.markdown("Test FIR intelligence with predefined legal scenarios")
+
+        # Predefined test scenarios
+        test_scenarios = {
+            "Medical Negligence": {
+                "complainant_name": "Mrs. Sunita Sharma",
+                "complainant_address": "789 Residential Complex, Powai, Mumbai - 400076",
+                "incident_date": "2024-01-15",
+                "incident_time": "14:30",
+                "incident_place": "Apollo Hospital, Operation Theater 2",
+                "incident_description": "During a routine appendectomy, the surgeon left a surgical instrument inside the patient's abdomen. This was discovered only after the patient experienced severe complications and required emergency surgery. The negligence caused additional pain, medical expenses, and prolonged recovery.",
+                "police_station": "Powai Police Station",
+                "accused_name": "Dr. Rajesh Gupta",
+                "legal_sections": "Medical negligence case involving surgical malpractice under BNS Section 304A (causing death by negligence) and Section 338 (causing grievous hurt by act endangering life)",
+                "expected_sections": ["BNS 304A", "BNS 338", "BNS 336"]
+            },
+            "Cyber Fraud": {
+                "complainant_name": "Mr. Amit Patel",
+                "complainant_address": "456 Tech Park, Whitefield, Bangalore - 560066",
+                "incident_date": "2024-01-20",
+                "incident_time": "19:45",
+                "incident_place": "Online/Digital Platform",
+                "incident_description": "The complainant received a call from someone claiming to be from his bank, asking for OTP for 'security verification'. After sharing the OTP, Rs. 2,50,000 was transferred from his account to unknown accounts. The fraudster used social engineering techniques to gain trust.",
+                "police_station": "Whitefield Cyber Crime Police Station",
+                "accused_name": "Unknown (Phone number: +91-9876543210)",
+                "legal_sections": "Cyber fraud case involving phishing and unauthorized financial transactions under IT Act and BNS provisions",
+                "expected_sections": ["BNS 420", "BNS 415", "IT Act 66C", "IT Act 66D"]
+            },
+            "Vehicle Accident": {
+                "complainant_name": "Mr. Ravi Kumar",
+                "complainant_address": "123 Highway Residency, Gurgaon - 122001",
+                "incident_date": "2024-01-25",
+                "incident_time": "08:15",
+                "incident_place": "NH-8 Highway, near Gurgaon Toll Plaza",
+                "incident_description": "The accused was driving a truck at high speed and overtaking rashly. He hit the complainant's car from behind, causing the car to overturn. The complainant suffered multiple injuries and the vehicle was completely damaged. The accused fled from the scene without providing assistance.",
+                "police_station": "Highway Police Station",
+                "accused_name": "Unknown truck driver (Vehicle: HR-55-AB-1234)",
+                "legal_sections": "Traffic accident case involving rash driving and hit-and-run under motor vehicle laws and BNS",
+                "expected_sections": ["BNS 279", "BNS 337", "BNS 338", "Motor Vehicle Act"]
+            }
+        }
+
+        selected_scenario = st.selectbox("Select Test Scenario", list(test_scenarios.keys()))
+
+        if st.button(f"🧪 Test {selected_scenario} Scenario", type="primary"):
+            scenario_data = test_scenarios[selected_scenario]
+
+            # Prepare payload
+            fir_fields = {k: v for k, v in scenario_data.items() if k != "expected_sections"}
+            payload = {"fir_fields": fir_fields}
+
+            with st.spinner(f"Testing {selected_scenario} scenario..."):
+                try:
+                    start_time = time.time()
+                    response = requests.post(f"{api_url}/fir/intelligence-dashboard", json=payload, timeout=60)
+                    end_time = time.time()
+
+                    if response.status_code == 200:
+                        data = response.json()
+                        st.success(f"✅ {selected_scenario} Test Complete! ({end_time - start_time:.2f}s)")
+
+                        # Validation against expected results
+                        expected_sections = scenario_data.get("expected_sections", [])
+                        actual_sections = data.get("grid_1_sections", [])
+
+                        # Calculate accuracy
+                        if expected_sections:
+                            matched_sections = []
+                            for expected in expected_sections:
+                                for actual in actual_sections:
+                                    if expected.lower() in actual.lower():
+                                        matched_sections.append(expected)
+                                        break
+
+                            accuracy = len(matched_sections) / len(expected_sections) * 100
+
+                            col1, col2, col3 = st.columns(3)
+                            with col1:
+                                st.metric("Section Accuracy", f"{accuracy:.1f}%")
+                            with col2:
+                                st.metric("AI Confidence", f"{data.get('ai_confidence', 0):.1%}")
+                            with col3:
+                                st.metric("Processing Time", f"{data.get('generation_time', 0):.2f}s")
+
+                        # Display comparison
+                        comp_col1, comp_col2 = st.columns(2)
+
+                        with comp_col1:
+                            st.subheader("Expected Sections")
+                            for section in expected_sections:
+                                st.write(f"• {section}")
+
+                        with comp_col2:
+                            st.subheader("AI Suggested Sections")
+                            for section in actual_sections:
+                                st.write(f"• {section}")
+
+                        # Show full results
+                        with st.expander("📄 View Complete FIR"):
+                            st.code(data.get("fir_text", ""), language="text")
+
+                        with st.expander("📊 Detailed Analysis"):
+                            st.json(data)
+
+                    else:
+                        st.error(f"❌ Error {response.status_code}: {response.text}")
+                except Exception as e:
+                    st.error(f"❌ Test failed: {e}")
+
+    # Tab 9.4: Batch Testing
+    with fir_tab4:
+        st.subheader("📊 Batch Testing & Performance Analysis")
+        st.markdown("Run multiple FIR tests to analyze system performance and consistency")
+
+        col1, col2 = st.columns(2)
+
+        with col1:
+            batch_size = st.number_input("Number of Tests", min_value=1, max_value=10, value=3)
+            test_type = st.selectbox("Test Type", ["All Scenarios", "Random Variations", "Stress Test"])
+
+        with col2:
+            include_timing = st.checkbox("Include Performance Metrics", value=True)
+            include_validation = st.checkbox("Include Accuracy Validation", value=True)
+
+        if st.button("🚀 Run Batch Tests", type="primary"):
+            results = []
+            progress_bar = st.progress(0)
+            status_text = st.empty()
+
+            # Define test cases for batch testing
+            batch_scenarios = [
+                {
+                    "name": "Medical Case",
+                    "fir_fields": {
+                        "complainant_name": "Test Patient",
+                        "incident_description": "Medical negligence during surgery causing patient harm",
+                        "legal_sections": "Medical malpractice case with surgical complications"
+                    }
+                },
+                {
+                    "name": "Cyber Crime",
+                    "fir_fields": {
+                        "complainant_name": "Test Victim",
+                        "incident_description": "Online fraud through phishing and unauthorized transactions",
+                        "legal_sections": "Cyber fraud case involving digital deception"
+                    }
+                },
+                {
+                    "name": "Traffic Accident",
+                    "fir_fields": {
+                        "complainant_name": "Test Driver",
+                        "incident_description": "Vehicle accident due to rash driving and negligence",
+                        "legal_sections": "Traffic violation case with injury and property damage"
+                    }
+                }
+            ]
+
+            for i in range(batch_size):
+                scenario = batch_scenarios[i % len(batch_scenarios)]
+                status_text.text(f"Running test {i+1}/{batch_size}: {scenario['name']}")
+
+                try:
+                    start_time = time.time()
+                    response = requests.post(
+                        f"{api_url}/fir/intelligence-dashboard",
+                        json={"fir_fields": scenario["fir_fields"]},
+                        timeout=30
+                    )
+                    end_time = time.time()
+
+                    if response.status_code == 200:
+                        data = response.json()
+                        results.append({
+                            "test_name": scenario["name"],
+                            "success": True,
+                            "response_time": end_time - start_time,
+                            "ai_confidence": data.get("ai_confidence", 0),
+                            "sections_count": len(data.get("grid_1_sections", [])),
+                            "completeness_score": len([c for c in data.get("grid_2_completeness", []) if c.get("status") == "complete"]),
+                            "practices_count": len(data.get("grid_3_best_practices", []))
+                        })
+                    else:
+                        results.append({
+                            "test_name": scenario["name"],
+                            "success": False,
+                            "error": f"HTTP {response.status_code}",
+                            "response_time": end_time - start_time
+                        })
+
+                except Exception as e:
+                    results.append({
+                        "test_name": scenario["name"],
+                        "success": False,
+                        "error": str(e),
+                        "response_time": 0
+                    })
+
+                progress_bar.progress((i + 1) / batch_size)
+
+            status_text.text("Batch testing complete!")
+
+            # Display results
+            st.subheader("📊 Batch Test Results")
+
+            # Summary metrics
+            successful_tests = [r for r in results if r.get("success", False)]
+            success_rate = len(successful_tests) / len(results) * 100
+            avg_response_time = sum(r.get("response_time", 0) for r in successful_tests) / len(successful_tests) if successful_tests else 0
+            avg_confidence = sum(r.get("ai_confidence", 0) for r in successful_tests) / len(successful_tests) if successful_tests else 0
+
+            metric_col1, metric_col2, metric_col3, metric_col4 = st.columns(4)
+
+            with metric_col1:
+                st.metric("Success Rate", f"{success_rate:.1f}%")
+            with metric_col2:
+                st.metric("Avg Response Time", f"{avg_response_time:.2f}s")
+            with metric_col3:
+                st.metric("Avg AI Confidence", f"{avg_confidence:.1%}")
+            with metric_col4:
+                st.metric("Total Tests", len(results))
+
+            # Detailed results table
+            st.subheader("📋 Detailed Results")
+            for i, result in enumerate(results):
+                with st.expander(f"Test {i+1}: {result['test_name']} - {'✅ Success' if result.get('success') else '❌ Failed'}"):
+                    if result.get("success"):
+                        col1, col2 = st.columns(2)
+                        with col1:
+                            st.write(f"**Response Time:** {result.get('response_time', 0):.2f}s")
+                            st.write(f"**AI Confidence:** {result.get('ai_confidence', 0):.1%}")
+                        with col2:
+                            st.write(f"**Legal Sections:** {result.get('sections_count', 0)}")
+                            st.write(f"**Complete Fields:** {result.get('completeness_score', 0)}")
+                            st.write(f"**Best Practices:** {result.get('practices_count', 0)}")
+                    else:
+                        st.error(f"Error: {result.get('error', 'Unknown error')}")
+
+            # Export results
+            if st.button("📥 Export Results as JSON"):
+                st.download_button(
+                    label="Download Test Results",
+                    data=json.dumps(results, indent=2),
+                    file_name=f"fir_batch_test_results_{time.strftime('%Y%m%d_%H%M%S')}.json",
+                    mime="application/json"
+                )
