@@ -296,15 +296,19 @@ def search_enhanced_live_cases(case_context: str, max_results: int = 10) -> Dict
     search_query = " ".join(keywords[:3])
     
     try:
-        # Enhanced Indian Kanoon API call with better error handling
+        # Enhanced Indian Kanoon API call - REAL DATA ONLY
         api_token = os.environ.get("INDIAN_KANOON_API_TOKEN", "")
+        if not api_token:
+            raise Exception("Indian Kanoon API token is required. Demo mode disabled for enhanced live cases.")
+
         url = f"https://api.indiankanoon.org/search/?formInput={search_query}&pagenum=0"
-        
+
         headers = {
             "Authorization": f"Token {api_token}",
             "Content-Type": "application/json"
         }
-        
+
+        logger.info(f"🔍 Making REAL API call to Indian Kanoon with query: '{search_query}'")
         response = requests.post(url, headers=headers, timeout=30)
         
         if response.status_code == 200:
@@ -330,34 +334,27 @@ def search_enhanced_live_cases(case_context: str, max_results: int = 10) -> Dict
             generation_time = time.time() - start_time
             
             return {
-                "message": f"✅ ENHANCED cases analysis completed - Found {len(processed_cases)} relevant {crime_type.replace('_', ' ')} cases",
+                "message": f"✅ REAL ENHANCED cases analysis completed - Found {len(processed_cases)} relevant {crime_type.replace('_', ' ')} cases from Indian Kanoon API",
                 "status": "success",
                 "cases": processed_cases,
                 "total_cases": len(processed_cases),
                 "generation_time": generation_time,
-                "api_mode": "enhanced_live",
+                "api_mode": "enhanced_live_real",
                 "crime_type": crime_type,
-                "search_optimization": "advanced_prompt_based"
+                "search_optimization": "advanced_prompt_based",
+                "data_source": "indian_kanoon_api_real"
             }
         else:
-            return {
-                "message": f"❌ Enhanced Indian Kanoon API error: {response.status_code}",
-                "status": "error",
-                "cases": [],
-                "total_cases": 0,
-                "generation_time": time.time() - start_time,
-                "api_mode": "error"
-            }
-            
+            # API error - no fallback to demo data
+            error_msg = f"❌ Enhanced Indian Kanoon API error: {response.status_code}. Response: {response.text[:200]}"
+            logger.error(error_msg)
+            raise Exception(error_msg)
+
     except Exception as e:
-        return {
-            "message": f"❌ Enhanced live cases search failed: {str(e)}",
-            "status": "error", 
-            "cases": [],
-            "total_cases": 0,
-            "generation_time": time.time() - start_time,
-            "api_mode": "error"
-        }
+        # No demo fallback - propagate error to force proper API configuration
+        error_msg = f"❌ Enhanced live cases search failed: {str(e)}. Ensure INDIAN_KANOON_API_TOKEN is properly configured."
+        logger.error(error_msg)
+        raise Exception(error_msg)
 
 # ---------------------------------------------
 # Main Revolutionary Dashboard Function
@@ -390,10 +387,18 @@ async def populate_revolutionary_dashboard(case_id: str, case_context: str) -> D
         }
     
     if isinstance(live_cases_results, Exception):
+        # Propagate enhanced live cases error - no demo fallback
+        error_msg = f"❌ Enhanced live cases failed: {str(live_cases_results)}. Please ensure Indian Kanoon API token is configured."
+        logger.error(error_msg)
         live_cases_results = {
-            "message": f"❌ Enhanced live cases failed: {str(live_cases_results)}",
+            "message": error_msg,
             "status": "error",
-            "cases": []
+            "cases": [],
+            "total_cases": 0,
+            "generation_time": 0.0,
+            "api_mode": "error_no_demo",
+            "error_type": "api_configuration_required",
+            "enhancement_level": "revolutionary"
         }
     
     total_time = time.time() - start_time

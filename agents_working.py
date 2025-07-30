@@ -180,15 +180,18 @@ def search_live_cases(case_context: str, max_results: int = 10) -> Dict[str, Any
     search_query = " ".join(keywords[:3])  # Use top 3 keywords
     
     try:
-        # Indian Kanoon API call
+        # Indian Kanoon API call - REAL DATA ONLY
         api_token = os.environ.get("INDIAN_KANOON_API_TOKEN", "")
+        if not api_token:
+            raise Exception("Indian Kanoon API token is required. Demo mode disabled.")
+
         url = f"https://api.indiankanoon.org/search/?formInput={search_query}&pagenum=0"
-        
+
         headers = {
             "Authorization": f"Token {api_token}",
             "Content-Type": "application/json"
         }
-        
+
         # Use POST request as per Indian Kanoon API requirements
         response = requests.post(url, headers=headers, timeout=30)
         
@@ -213,32 +216,23 @@ def search_live_cases(case_context: str, max_results: int = 10) -> Dict[str, Any
             generation_time = time.time() - start_time
             
             return {
-                "message": f"✅ LIVE cases analysis completed - Found {len(processed_cases)} relevant cases from Indian Kanoon API",
+                "message": f"✅ REAL LIVE cases analysis completed - Found {len(processed_cases)} relevant cases from Indian Kanoon API",
                 "status": "success",
                 "cases": processed_cases,
                 "total_cases": len(processed_cases),
                 "generation_time": generation_time,
-                "api_mode": "live"
+                "api_mode": "live",
+                "data_source": "indian_kanoon_api_real"
             }
         else:
-            return {
-                "message": f"❌ Indian Kanoon API error: {response.status_code}",
-                "status": "error",
-                "cases": [],
-                "total_cases": 0,
-                "generation_time": time.time() - start_time,
-                "api_mode": "error"
-            }
-            
+            # API error - no fallback to demo data
+            error_msg = f"❌ Indian Kanoon API error: {response.status_code}. Response: {response.text[:200]}"
+            raise Exception(error_msg)
+
     except Exception as e:
-        return {
-            "message": f"❌ Live cases search failed: {str(e)}",
-            "status": "error", 
-            "cases": [],
-            "total_cases": 0,
-            "generation_time": time.time() - start_time,
-            "api_mode": "error"
-        }
+        # No demo fallback - propagate error to force proper API configuration
+        error_msg = f"❌ Live cases search failed: {str(e)}. Ensure INDIAN_KANOON_API_TOKEN is properly configured."
+        raise Exception(error_msg)
 
 # ---------------------------------------------
 # Main Dashboard Population Function
@@ -271,10 +265,16 @@ async def populate_optimized_dashboard(case_id: str, case_context: str) -> Dict[
         }
     
     if isinstance(live_cases_results, Exception):
+        # Propagate live cases error - no demo fallback
+        error_msg = f"❌ Live cases failed: {str(live_cases_results)}. Please ensure Indian Kanoon API token is configured."
         live_cases_results = {
-            "message": f"❌ Live cases failed: {str(live_cases_results)}",
+            "message": error_msg,
             "status": "error",
-            "cases": []
+            "cases": [],
+            "total_cases": 0,
+            "generation_time": 0.0,
+            "api_mode": "error_no_demo",
+            "error_type": "api_configuration_required"
         }
     
     total_time = time.time() - start_time

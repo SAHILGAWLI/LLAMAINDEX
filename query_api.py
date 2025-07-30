@@ -1358,11 +1358,14 @@ async def populate_optimized_dashboard_endpoint(request: DashboardRequest):
     Returns high-value grids with enhanced intelligence:
     - Grid 1: Legal Compliance (Enhanced with crime-specific requirements)
     - Grid 2: BNS Laws & Severity (Crime-aware section mapping)
-    - Grid 3: Live Cases Analytics (Optimized search with legal context)
+    - Grid 3: Live Cases Analytics (REAL DATA ONLY - No Demo Mode)
+
+    ⚠️ IMPORTANT: Requires INDIAN_KANOON_API_TOKEN environment variable
+    Demo mode has been completely removed to ensure real data integrity.
 
     Performance: 15-30 seconds with 5-10x better accuracy
     Cost: 40% reduction in OpenAI API calls + enhanced intelligence
-    Value: 95% retention + revolutionary legal framework awareness
+    Value: 95% retention + revolutionary legal framework awareness + Real API data
     """
     try:
         logger.info(f"🚀 [REVOLUTIONARY] Starting enhanced 3-grid dashboard for case {request.case_id}")
@@ -1702,8 +1705,14 @@ def build_optimized_search_query(case_context: str, additional_context: str = No
     return search_query
 
 def get_api_mode():
-    """Check if we're in live or demo mode"""
-    return "live" if os.getenv("INDIAN_KANOON_API_TOKEN") else "demo"
+    """Check if we're in live mode - demo mode removed"""
+    api_token = os.getenv("INDIAN_KANOON_API_TOKEN")
+    if not api_token:
+        raise HTTPException(
+            status_code=503,
+            detail="Indian Kanoon API token is required. Demo mode has been disabled. Please configure INDIAN_KANOON_API_TOKEN environment variable."
+        )
+    return "live"
 
 async def search_indian_kanoon_api(query: str, max_results: int = 10):
     """Search using real Indian Kanoon API"""
@@ -1913,18 +1922,91 @@ def process_indian_kanoon_results(results: List[Dict], query: str = "") -> List[
     
     return processed_cases
 
-# Demo data fallback
-DEMO_CASES = [
-    {
-        "title": "Demo Mode - Add Indian Kanoon API Token for Live Data",
-        "court": "Demo Court",
-        "date": "2024-01-01",
-        "citation": "DEMO 2024",
-        "summary": "This is demo data. Add your Indian Kanoon API token in the configuration to get real legal cases.",
-        "similarity_score": 0.0,
-        "url": "https://example.com"
-    }
-]
+# Demo data removed - System now requires real API token for live cases
+# DEMO_CASES removed to force real API usage only
+
+def validate_indian_kanoon_api_config():
+    """
+    Validate Indian Kanoon API configuration at startup
+    """
+    api_token = os.getenv("INDIAN_KANOON_API_TOKEN")
+    if not api_token:
+        logger.warning("⚠️ INDIAN_KANOON_API_TOKEN not configured. Live cases will fail.")
+        return False
+
+    # Test API connectivity (optional)
+    try:
+        test_url = "https://api.indiankanoon.org/search/?formInput=test&pagenum=0"
+        headers = {
+            "Authorization": f"Token {api_token}",
+            "Content-Type": "application/json"
+        }
+        response = requests.post(test_url, headers=headers, timeout=10)
+        if response.status_code == 200:
+            logger.info("✅ Indian Kanoon API configuration validated successfully")
+            return True
+        else:
+            logger.warning(f"⚠️ Indian Kanoon API test failed: {response.status_code}")
+            return False
+    except Exception as e:
+        logger.warning(f"⚠️ Indian Kanoon API connectivity test failed: {e}")
+        return False
+
+# Validate API configuration at startup
+API_CONFIG_VALID = validate_indian_kanoon_api_config()
+
+@app.get("/api/status/indian-kanoon")
+async def check_indian_kanoon_api_status():
+    """
+    Check Indian Kanoon API status and configuration
+    """
+    api_token = os.getenv("INDIAN_KANOON_API_TOKEN")
+
+    if not api_token:
+        return {
+            "status": "error",
+            "message": "Indian Kanoon API token not configured",
+            "configured": False,
+            "demo_mode_available": False,
+            "recommendation": "Set INDIAN_KANOON_API_TOKEN environment variable"
+        }
+
+    try:
+        # Test API connectivity
+        test_url = "https://api.indiankanoon.org/search/?formInput=test&pagenum=0"
+        headers = {
+            "Authorization": f"Token {api_token}",
+            "Content-Type": "application/json"
+        }
+        response = requests.post(test_url, headers=headers, timeout=10)
+
+        if response.status_code == 200:
+            return {
+                "status": "success",
+                "message": "Indian Kanoon API is configured and accessible",
+                "configured": True,
+                "api_responsive": True,
+                "demo_mode_available": False,
+                "live_cases_enabled": True
+            }
+        else:
+            return {
+                "status": "error",
+                "message": f"Indian Kanoon API error: {response.status_code}",
+                "configured": True,
+                "api_responsive": False,
+                "demo_mode_available": False,
+                "recommendation": "Check API token validity"
+            }
+    except Exception as e:
+        return {
+            "status": "error",
+            "message": f"API connectivity test failed: {str(e)}",
+            "configured": True,
+            "api_responsive": False,
+            "demo_mode_available": False,
+            "recommendation": "Check network connectivity and API endpoint"
+        }
 
 # ---------------------------------------------
 # Live Cases Endpoint
@@ -1973,19 +2055,10 @@ async def get_live_cases(request: DashboardRequest):
                 raise HTTPException(status_code=500, detail=f"Live API error: {str(e)}")
         
         else:
-            # Demo mode fallback
-            await asyncio.sleep(1)  # Simulate processing time
-            
-            demo_cases = [LiveCaseDocument(**case) for case in DEMO_CASES]
-            generation_time = time.time() - start_time
-            
-            return LiveCasesResponse(
-                message="⚠️ DEMO MODE - Add Indian Kanoon API token for live data",
-                status="demo",
-                cases=demo_cases,
-                total_cases=len(demo_cases),
-                generation_time=generation_time,
-                api_mode="demo"
+            # No demo mode - require API token
+            raise HTTPException(
+                status_code=503,
+                detail="Indian Kanoon API token is required for live cases. Demo mode has been disabled. Please configure INDIAN_KANOON_API_TOKEN environment variable."
             )
         
     except HTTPException:
