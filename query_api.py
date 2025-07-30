@@ -363,15 +363,29 @@ def suggest_sections_from_laws_grid(laws_grid: str) -> List[str]:
             logger.info(f"🔍 [FIR] Pattern '{pattern}' found: {matches}")
         sections.update(match.strip() for match in matches if match.strip())
 
-    # 🔧 Filter out non-section numbers (like years)
+    # 🔧 Filter out non-section numbers (like years, invalid sections)
     valid_sections = set()
     for section in sections:
-        # Only include sections that are reasonable BNS section numbers (1-999)
-        if section.isdigit() and 1 <= int(section) <= 999:
-            valid_sections.add(section)
+        # Filter out years (2020-2030) and other invalid numbers
+        if section.isdigit():
+            section_num = int(section)
+            # Only include reasonable BNS section numbers (1-999, exclude years)
+            if 1 <= section_num <= 999 and not (2020 <= section_num <= 2030):
+                valid_sections.add(section)
         elif section.replace('A', '').replace('B', '').replace('C', '').isdigit():
             # Handle sections like 304A, 498A, etc.
-            valid_sections.add(section)
+            base_num = section.replace('A', '').replace('B', '').replace('C', '')
+            if base_num.isdigit():
+                base_section_num = int(base_num)
+                # Only include if base number is valid and not a year
+                if 1 <= base_section_num <= 999 and not (2020 <= base_section_num <= 2030):
+                    valid_sections.add(section)
+
+    # 🔍 Debug: Show filtering results
+    if sections != valid_sections:
+        filtered_out = sections - valid_sections
+        logger.info(f"🔧 [FIR] Filtered out invalid sections: {sorted(filtered_out)}")
+        logger.info(f"🔧 [FIR] Valid sections remaining: {sorted(valid_sections)}")
 
     # 🚀 REVOLUTIONARY FIX: Use ACTUAL extracted sections
     if valid_sections:
