@@ -408,7 +408,7 @@ with tab3:
                     response = requests.post(
                         f"{api_url}/dashboard/populate-optimized",
                         json=request_data,
-                        timeout=60  # Much shorter timeout for optimized version
+                        timeout=300  # 5 minutes timeout for revolutionary processing
                     )
                     
                     execution_time = time.time() - start_time
@@ -903,7 +903,7 @@ with tab9:
 
             with st.spinner("Generating FIR..."):
                 try:
-                    response = requests.post(f"{api_url}/fir/draft", json=payload, timeout=30)
+                    response = requests.post(f"{api_url}/fir/draft", json=payload, timeout=300)
                     if response.status_code == 200:
                         fir_data = response.json()
                         st.success("✅ FIR Generated Successfully!")
@@ -1005,7 +1005,7 @@ with tab9:
             with st.spinner("Analyzing FIR with AI Intelligence..."):
                 try:
                     start_time = time.time()
-                    response = requests.post(f"{api_url}/fir/intelligence-dashboard", json=payload, timeout=60)
+                    response = requests.post(f"{api_url}/fir/intelligence-dashboard", json=payload, timeout=300)
                     end_time = time.time()
 
                     if response.status_code == 200:
@@ -1153,7 +1153,7 @@ with tab9:
             with st.spinner(f"Testing {selected_scenario} scenario..."):
                 try:
                     start_time = time.time()
-                    response = requests.post(f"{api_url}/fir/intelligence-dashboard", json=payload, timeout=60)
+                    response = requests.post(f"{api_url}/fir/intelligence-dashboard", json=payload, timeout=300)
                     end_time = time.time()
 
                     if response.status_code == 200:
@@ -1265,7 +1265,7 @@ with tab9:
                     response = requests.post(
                         f"{api_url}/fir/intelligence-dashboard",
                         json={"fir_fields": scenario["fir_fields"]},
-                        timeout=30
+                        timeout=300
                     )
                     end_time = time.time()
 

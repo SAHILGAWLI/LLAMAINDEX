@@ -26,20 +26,6 @@ import json
 import re
 from typing import Dict, List, Optional
 
-# 🚀 REVOLUTIONARY PROMPT SYSTEM IMPORTS
-try:
-    from optimized_prompt_system import (
-        AdvancedPromptEngine,
-        PerformanceOptimizedPrompts,
-        ContextAwarePromptEngine,
-        get_optimized_prompts
-    )
-    REVOLUTIONARY_PROMPTS_AVAILABLE = True
-    print("🚀 Revolutionary prompt system loaded successfully!")
-except ImportError as e:
-    print(f"⚠️ Revolutionary prompt system not available: {e}")
-    REVOLUTIONARY_PROMPTS_AVAILABLE = False
-
 # ---------------------------------------------
 # Environment Variables and Logging
 # ---------------------------------------------
@@ -187,77 +173,26 @@ class FIRIntelligenceResponse(BaseModel):
 @app.post("/fir/intelligence-dashboard", response_model=FIRIntelligenceResponse)
 def fir_intelligence_dashboard(request: FIRIntelligenceRequest):
     """
-    🚀 REVOLUTIONARY FIR Intelligence Dashboard with Advanced Legal Framework
-
-    Enhanced with:
-    - Crime-type detection and specialized legal section mapping
-    - BNS 2023, BNSS 2023, BSA 2023 comprehensive knowledge
-    - Specialized Acts integration (NDPS, POCSO, IT Act, DV Act)
-    - Context-aware best practices and compliance recommendations
+    Enhanced FIR Intelligence Dashboard with comprehensive analysis
     """
     start_time = time.time()
     fir_fields = request.fir_fields
 
-    # 🚀 REVOLUTIONARY ENHANCEMENT: Crime-type detection and specialized analysis
-    if REVOLUTIONARY_PROMPTS_AVAILABLE:
-        logger.info("🧠 Using REVOLUTIONARY FIR intelligence with crime-type detection")
-
-        # Extract case context for analysis
-        incident_context = fir_fields.get("incident_description", "")
-
-        # Initialize revolutionary prompt engine
-        prompt_engine = AdvancedPromptEngine()
-
-        # Detect crime type for specialized handling
-        crime_type, confidence = prompt_engine.detect_crime_type(incident_context)
-        logger.info(f"🎯 Detected crime type: {crime_type} (Confidence: {confidence:.1%})")
-
-        # Get specialized sections for this crime type
-        section_mappings = prompt_engine.section_mappings.get(crime_type, {})
-        priority_sections = section_mappings.get('primary', [])
-        applicable_acts = section_mappings.get('acts', ['BNS'])
-
-        logger.info(f"⚖️ Priority sections for {crime_type}: {priority_sections}")
-        logger.info(f"📚 Applicable acts: {applicable_acts}")
-    else:
-        logger.info("⚡ Using standard FIR intelligence")
-        crime_type = "general_crime"
-        confidence = 0.7
-        priority_sections = []
-        applicable_acts = ['BNS']
-
-    # --- Grid 1: Enhanced Legal Section & Citation Engine ---
-    # Use revolutionary section detection if available
+    # --- Grid 1: Legal Section & Citation Engine ---
+    # Use only real BNS sections from the laws grid output
     laws_grid = fir_fields.get("legal_sections", "")
     grid_1_sections = suggest_sections_from_laws_grid(laws_grid)
 
-    # If no sections from laws grid, try enhanced detection
+    # If no sections from laws grid, try to extract from incident description
     if not grid_1_sections:
         incident_context = fir_fields.get("incident_description", "")
         grid_1_sections = suggest_sections_from_laws_grid(incident_context)
 
-        # 🚀 REVOLUTIONARY: Add priority sections for detected crime type
-        if REVOLUTIONARY_PROMPTS_AVAILABLE and priority_sections:
-            for section in priority_sections[:3]:  # Add top 3 priority sections
-                section_entry = f"Section {section} - {applicable_acts[0] if applicable_acts else 'BNS'}"
-                if section_entry not in grid_1_sections:
-                    grid_1_sections.append(section_entry)
-
-    # --- Grid 2: Enhanced Completeness & Risk Analyzer ---
+    # --- Grid 2: Completeness & Risk Analyzer ---
     grid_2_completeness = check_completeness(fir_fields)
 
-    # 🚀 REVOLUTIONARY: Add crime-specific completeness checks
-    if REVOLUTIONARY_PROMPTS_AVAILABLE and crime_type != "general_crime":
-        crime_specific_checks = get_crime_specific_completeness_checks(crime_type, fir_fields)
-        grid_2_completeness.extend(crime_specific_checks)
-
-    # --- Grid 3: Enhanced Best Practices & Pattern Intelligence ---
+    # --- Grid 3: Best Practices & Pattern Intelligence ---
     grid_3_best_practices = suggest_best_practices(fir_fields)
-
-    # 🚀 REVOLUTIONARY: Add crime-specific best practices
-    if REVOLUTIONARY_PROMPTS_AVAILABLE and crime_type != "general_crime":
-        crime_specific_practices = get_crime_specific_best_practices(crime_type, incident_context)
-        grid_3_best_practices.extend(crime_specific_practices)
 
     # Generate enhanced FIR text with all intelligence
     enhanced_fir_fields = {
@@ -791,191 +726,6 @@ all details before final submission.
 
     return complete_fir.strip()
 
-# 🚀 REVOLUTIONARY HELPER FUNCTIONS FOR CRIME-SPECIFIC ANALYSIS
-def get_crime_specific_completeness_checks(crime_type: str, fir_fields: Dict[str, str]) -> List[Dict[str, str]]:
-    """Get crime-specific completeness checks matching CompletenessItem schema"""
-    checks = []
-
-    if crime_type == "medical_negligence":
-        checks.extend([
-            {
-                "field": "Medical Records",
-                "field_key": "medical_records",
-                "status": "incomplete" if not fir_fields.get("medical_records") else "complete",
-                "priority": "high",
-                "suggestion": "Obtain complete medical records and treatment history",
-                "required": True
-            },
-            {
-                "field": "Expert Medical Opinion",
-                "field_key": "expert_opinion",
-                "status": "incomplete",
-                "priority": "high",
-                "suggestion": "Get independent medical expert assessment",
-                "required": True
-            },
-            {
-                "field": "Hospital Protocols",
-                "field_key": "hospital_protocols",
-                "status": "incomplete",
-                "priority": "medium",
-                "suggestion": "Document standard operating procedures",
-                "required": False
-            }
-        ])
-    elif crime_type == "cyber_crime":
-        checks.extend([
-            {
-                "field": "Digital Evidence",
-                "field_key": "digital_evidence",
-                "status": "incomplete",
-                "priority": "high",
-                "suggestion": "Preserve all digital evidence and logs",
-                "required": True
-            },
-            {
-                "field": "IP Address Logs",
-                "field_key": "ip_logs",
-                "status": "incomplete",
-                "priority": "high",
-                "suggestion": "Collect IP address and network traffic data",
-                "required": True
-            },
-            {
-                "field": "Technical Analysis",
-                "field_key": "tech_analysis",
-                "status": "incomplete",
-                "priority": "medium",
-                "suggestion": "Engage cyber forensics experts",
-                "required": False
-            }
-        ])
-    elif crime_type == "drug_crime":
-        checks.extend([
-            {
-                "field": "Substance Testing",
-                "field_key": "substance_test",
-                "status": "incomplete",
-                "priority": "high",
-                "suggestion": "Conduct forensic analysis of seized substances",
-                "required": True
-            },
-            {
-                "field": "Chain of Custody",
-                "field_key": "chain_custody",
-                "status": "incomplete",
-                "priority": "high",
-                "suggestion": "Maintain proper chain of custody documentation",
-                "required": True
-            },
-            {
-                "field": "NDPS Compliance",
-                "field_key": "ndps_compliance",
-                "status": "incomplete",
-                "priority": "medium",
-                "suggestion": "Follow NDPS Act investigation procedures",
-                "required": False
-            }
-        ])
-    elif crime_type == "child_crime":
-        checks.extend([
-            {
-                "field": "Child-Friendly Procedures",
-                "field_key": "child_procedures",
-                "status": "incomplete",
-                "priority": "high",
-                "suggestion": "Follow POCSO child-friendly investigation protocols",
-                "required": True
-            },
-            {
-                "field": "POCSO Compliance",
-                "field_key": "pocso_compliance",
-                "status": "incomplete",
-                "priority": "high",
-                "suggestion": "Ensure POCSO Act compliance throughout",
-                "required": True
-            },
-            {
-                "field": "Child Welfare Officer",
-                "field_key": "welfare_officer",
-                "status": "incomplete",
-                "priority": "medium",
-                "suggestion": "Engage child welfare officer for support",
-                "required": False
-            }
-        ])
-    elif crime_type == "domestic_violence":
-        checks.extend([
-            {
-                "field": "Protection Officer",
-                "field_key": "protection_officer",
-                "status": "incomplete",
-                "priority": "high",
-                "suggestion": "Engage protection officer for victim support",
-                "required": True
-            },
-            {
-                "field": "Medical Examination",
-                "field_key": "medical_exam",
-                "status": "incomplete",
-                "priority": "high",
-                "suggestion": "Arrange medical examination for injuries",
-                "required": True
-            },
-            {
-                "field": "DV Act Compliance",
-                "field_key": "dv_compliance",
-                "status": "incomplete",
-                "priority": "medium",
-                "suggestion": "Follow Domestic Violence Act procedures",
-                "required": False
-            }
-        ])
-
-    return checks
-
-def get_crime_specific_best_practices(crime_type: str, incident_context: str) -> List[str]:
-    """Get crime-specific best practices"""
-    practices = []
-
-    if crime_type == "medical_negligence":
-        practices.extend([
-            "🏥 Secure all medical records and treatment protocols immediately",
-            "👨‍⚕️ Obtain expert medical opinion from qualified practitioners",
-            "📋 Document hospital's standard operating procedures",
-            "⚖️ Consider BNS 304A (negligence) and 336-338 (endangering life) sections"
-        ])
-    elif crime_type == "cyber_crime":
-        practices.extend([
-            "💻 Preserve digital evidence and maintain chain of custody",
-            "🌐 Collect IP address logs and network traffic data",
-            "🔍 Engage cyber forensics experts for technical analysis",
-            "⚖️ Apply IT Act 2000 sections 66, 66A-66D as applicable"
-        ])
-    elif crime_type == "drug_crime":
-        practices.extend([
-            "🧪 Ensure proper substance testing and forensic analysis",
-            "📋 Maintain strict chain of custody for seized materials",
-            "⚖️ Apply NDPS Act 1985 sections 8, 15, 20-22 as applicable",
-            "🏛️ Follow NDPS-specific investigation procedures"
-        ])
-    elif crime_type == "child_crime":
-        practices.extend([
-            "👶 Follow child-friendly investigation procedures",
-            "🛡️ Ensure child welfare officer presence during proceedings",
-            "⚖️ Apply POCSO Act 2012 sections 3-8 as applicable",
-            "🏥 Arrange immediate medical examination if required"
-        ])
-    elif crime_type == "domestic_violence":
-        practices.extend([
-            "🛡️ Engage protection officer for victim support",
-            "🏥 Arrange medical examination and document injuries",
-            "⚖️ Apply DV Act 2005 and BNS 498A provisions",
-            "🏠 Consider shelter and protection arrangements"
-        ])
-
-    return practices
-
 # Add CORS middleware for browser access (Next.js compatible)
 # Environment-driven CORS configuration for production safety
 allowed_origins = os.getenv("CORS_ORIGINS", 
@@ -1088,15 +838,6 @@ from models import (
 )
 # Import working agents implementation
 from agents_working import populate_optimized_dashboard
-
-# 🚀 REVOLUTIONARY AGENTS IMPORT (Enhanced version)
-try:
-    from agents_working_optimized import populate_revolutionary_dashboard
-    REVOLUTIONARY_AGENTS_AVAILABLE = True
-    print("🚀 Revolutionary agents loaded successfully!")
-except ImportError as e:
-    print(f"⚠️ Revolutionary agents not available, using standard agents: {e}")
-    REVOLUTIONARY_AGENTS_AVAILABLE = False
 from parsers import ResponseParser
 
 @app.post("/citizen_chat", response_model=CitizenChatResponse)
@@ -1250,33 +991,22 @@ async def populate_dashboard_hierarchical(request: DashboardRequest):
 @app.post("/dashboard/populate-optimized")
 async def populate_optimized_dashboard_endpoint(request: DashboardRequest):
     """
-    🚀 REVOLUTIONARY OPTIMIZED 3-GRID DASHBOARD - 5-10x ENHANCED ACCURACY!
-
-    Enhanced with Revolutionary Prompt System:
-    - Crime-type detection and specialized legal framework application
-    - Knowledge-base-aware prompting (BNS 2023, BNSS 2023, BSA 2023)
-    - Specialized Acts integration (NDPS, POCSO, IT Act, DV Act)
-    - Performance optimization with maintained lightning-fast speed
-
-    Returns high-value grids with enhanced intelligence:
-    - Grid 1: Legal Compliance (Enhanced with crime-specific requirements)
-    - Grid 2: BNS Laws & Severity (Crime-aware section mapping)
-    - Grid 3: Live Cases Analytics (Optimized search with legal context)
-
-    Performance: 15-30 seconds with 5-10x better accuracy
-    Cost: 40% reduction in OpenAI API calls + enhanced intelligence
-    Value: 95% retention + revolutionary legal framework awareness
+    🚀 OPTIMIZED 3-GRID DASHBOARD - 3-5x FASTER!
+    
+    Returns only high-value grids that effectively use available data:
+    - Grid 1: Legal Compliance (BNS + Police procedures)
+    - Grid 2: BNS Laws & Severity (Legal framework)
+    - Grid 3: Live Cases Analytics (Indian Kanoon API)
+    
+    Performance: 15-30 seconds vs 75-150 seconds (hierarchical)
+    Cost: 40% reduction in OpenAI API calls
+    Value: 95% retention, removes useless grids
     """
     try:
-        logger.info(f"🚀 [REVOLUTIONARY] Starting enhanced 3-grid dashboard for case {request.case_id}")
-
-        # 🚀 REVOLUTIONARY ENHANCEMENT: Use advanced agents if available
-        if REVOLUTIONARY_AGENTS_AVAILABLE and REVOLUTIONARY_PROMPTS_AVAILABLE:
-            logger.info(f"🧠 Using REVOLUTIONARY prompt system with crime-type detection")
-            result = await populate_revolutionary_dashboard(request.case_id, request.case_context)
-        else:
-            logger.info(f"⚡ Using standard optimized agents")
-            result = await populate_optimized_dashboard(request.case_id, request.case_context)
+        logger.info(f"🚀 [OPTIMIZED] Starting 3-grid dashboard for case {request.case_id}")
+        
+        # Use working agents implementation for faster execution
+        result = await populate_optimized_dashboard(request.case_id, request.case_context)
         
         # --- FIR Intelligence Grid Integration ---
         fir_fields = {
