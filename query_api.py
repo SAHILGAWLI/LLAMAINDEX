@@ -227,21 +227,31 @@ def fir_intelligence_dashboard(request: FIRIntelligenceRequest):
         applicable_acts = ['BNS']
 
     # --- Grid 1: Enhanced Legal Section & Citation Engine ---
-    # Use revolutionary section detection if available
+    # 🚀 REVOLUTIONARY FIX: Use ACTUAL BNS sections from laws grid
     laws_grid = fir_fields.get("legal_sections", "")
     grid_1_sections = suggest_sections_from_laws_grid(laws_grid)
 
-    # If no sections from laws grid, try enhanced detection
-    if not grid_1_sections:
+    # Log what we're using for transparency
+    if grid_1_sections:
+        logger.info(f"✅ [FIR] Using {len(grid_1_sections)} REAL sections from BNS Laws grid")
+    else:
+        logger.warning(f"⚠️ [FIR] No sections from laws grid, trying incident context")
+
+        # Only if no sections from laws grid, try incident context
         incident_context = fir_fields.get("incident_description", "")
         grid_1_sections = suggest_sections_from_laws_grid(incident_context)
 
-        # 🚀 REVOLUTIONARY: Add priority sections for detected crime type
-        if REVOLUTIONARY_PROMPTS_AVAILABLE and priority_sections:
+        # 🚀 REVOLUTIONARY: Only add priority sections as LAST RESORT
+        if not grid_1_sections and REVOLUTIONARY_PROMPTS_AVAILABLE and priority_sections:
+            logger.warning(f"⚠️ [FIR] Last resort: Using {len(priority_sections)} priority sections for {crime_type}")
             for section in priority_sections[:3]:  # Add top 3 priority sections
                 section_entry = f"Section {section} - {applicable_acts[0] if applicable_acts else 'BNS'}"
-                if section_entry not in grid_1_sections:
-                    grid_1_sections.append(section_entry)
+                grid_1_sections.append(section_entry)
+        elif not grid_1_sections:
+            logger.error(f"❌ [FIR] No sections available - FIR will have no legal sections!")
+
+    # Final logging for debugging
+    logger.info(f"📋 [FIR] Final sections for FIR: {grid_1_sections}")
 
     # --- Grid 2: Enhanced Completeness & Risk Analyzer ---
     grid_2_completeness = check_completeness(fir_fields)
@@ -327,9 +337,15 @@ def calculate_ai_confidence(fir_fields: Dict[str, str], sections: List[str], com
 
 def suggest_sections_from_laws_grid(laws_grid: str) -> List[str]:
     """
-    Enhanced BNS section extraction with intelligent analysis
+    🚀 REVOLUTIONARY: Extract ACTUAL BNS sections from laws grid output
+
+    This function now prioritizes REAL sections from the BNS Laws analysis
+    and only falls back to contextual suggestions if absolutely no sections found.
     """
     import re
+
+    # 🔍 DEBUG: Log what we're trying to extract from
+    logger.info(f"🔍 [FIR] Extracting sections from laws grid: {laws_grid[:200]}...")
 
     # Enhanced regex patterns for various BNS section formats
     patterns = [
@@ -343,14 +359,36 @@ def suggest_sections_from_laws_grid(laws_grid: str) -> List[str]:
     sections = set()
     for pattern in patterns:
         matches = re.findall(pattern, laws_grid, re.IGNORECASE)
+        if matches:
+            logger.info(f"🔍 [FIR] Pattern '{pattern}' found: {matches}")
         sections.update(match.strip() for match in matches if match.strip())
 
-    # Context-based section suggestions if no sections found
-    if not sections:
-        sections = suggest_contextual_bns_sections(laws_grid)
+    # 🔧 Filter out non-section numbers (like years)
+    valid_sections = set()
+    for section in sections:
+        # Only include sections that are reasonable BNS section numbers (1-999)
+        if section.isdigit() and 1 <= int(section) <= 999:
+            valid_sections.add(section)
+        elif section.replace('A', '').replace('B', '').replace('C', '').isdigit():
+            # Handle sections like 304A, 498A, etc.
+            valid_sections.add(section)
 
-    # Return formatted BNS codes with descriptions
-    return format_bns_sections_with_descriptions(sorted(sections)) if sections else []
+    # 🚀 REVOLUTIONARY FIX: Use ACTUAL extracted sections
+    if valid_sections:
+        logger.info(f"✅ [FIR] Using REAL BNS sections from laws grid: {sorted(valid_sections)}")
+        return format_bns_sections_with_descriptions(sorted(valid_sections))
+
+    # Only use contextual suggestions if NO sections found in laws grid
+    logger.warning(f"⚠️ [FIR] No sections found in laws grid, using contextual fallback")
+    contextual_sections = suggest_contextual_bns_sections(laws_grid)
+
+    if contextual_sections:
+        logger.info(f"📋 [FIR] Using contextual sections: {sorted(contextual_sections)}")
+        return format_bns_sections_with_descriptions(sorted(contextual_sections))
+
+    # Last resort: return empty list instead of fake sections
+    logger.warning(f"❌ [FIR] No sections found - returning empty list")
+    return []
 
 def suggest_contextual_bns_sections(context: str) -> set:
     """
@@ -411,30 +449,63 @@ def suggest_contextual_bns_sections(context: str) -> set:
 
 def format_bns_sections_with_descriptions(sections: List[str]) -> List[str]:
     """
-    Format BNS sections with brief descriptions for better understanding
+    🚀 REVOLUTIONARY: Format BNS sections with accurate descriptions
+    Enhanced with BNS 2023 sections including medical negligence
     """
-    # BNS section descriptions (key sections)
+    # BNS 2023 section descriptions (comprehensive mapping)
     section_descriptions = {
-        '302': 'Murder',
+        # Medical negligence and professional misconduct
+        '106': 'Negligence by registered medical practitioner',
+        '107': 'Abetment of suicide by medical practitioner',
+
+        # General negligence and endangerment
         '304A': 'Causing death by negligence',
-        '323': 'Voluntarily causing hurt',
-        '324': 'Voluntarily causing hurt by dangerous weapons',
-        '375': 'Rape',
-        '378': 'Theft',
-        '420': 'Cheating and dishonestly inducing delivery of property',
-        '498A': 'Husband or relative subjecting woman to cruelty',
         '279': 'Rash driving or riding on a public way',
         '336': 'Act endangering life or personal safety of others',
         '337': 'Causing hurt by act endangering life',
         '338': 'Causing grievous hurt by act endangering life',
+
+        # Violent crimes
+        '302': 'Murder',
+        '300': 'Murder (definition)',
+        '299': 'Culpable homicide',
+        '323': 'Voluntarily causing hurt',
+        '324': 'Voluntarily causing hurt by dangerous weapons',
+        '325': 'Voluntarily causing grievous hurt',
+        '326': 'Voluntarily causing grievous hurt by dangerous weapons',
+
+        # Sexual offenses
+        '375': 'Rape',
+        '376': 'Punishment for rape',
+
+        # Property crimes
+        '378': 'Theft',
+        '379': 'Punishment for theft',
+        '380': 'Theft in dwelling house',
+        '381': 'Theft by clerk or servant',
+        '390': 'Robbery',
+        '392': 'Punishment for robbery',
+
+        # Fraud and cheating
         '415': 'Cheating',
+        '416': 'Cheating by personation',
+        '420': 'Cheating and dishonestly inducing delivery of property',
         '463': 'Forgery',
+        '464': 'Making a false document',
+        '465': 'Punishment for forgery',
+
+        # Domestic violence and cruelty
+        '498A': 'Husband or relative subjecting woman to cruelty',
+        '304B': 'Dowry death',
+
+        # Other offenses
         '506': 'Criminal intimidation',
+        '509': 'Word, gesture or act intended to insult modesty of woman',
     }
 
     formatted_sections = []
     for section in sections:
-        description = section_descriptions.get(section, 'General offense')
+        description = section_descriptions.get(section, f'BNS Section {section}')
         formatted_sections.append(f"BNS {section} - {description}")
 
     return formatted_sections
@@ -1097,6 +1168,18 @@ try:
 except ImportError as e:
     print(f"⚠️ Revolutionary agents not available, using standard agents: {e}")
     REVOLUTIONARY_AGENTS_AVAILABLE = False
+
+# 🏗️ ENHANCED RESPONSE MODELS IMPORT
+try:
+    from enhanced_response_models import (
+        RevolutionaryDashboardResponse,
+        RevolutionaryResponseParser
+    )
+    ENHANCED_MODELS_AVAILABLE = True
+    print("🏗️ Enhanced response models loaded successfully!")
+except ImportError as e:
+    print(f"⚠️ Enhanced response models not available: {e}")
+    ENHANCED_MODELS_AVAILABLE = False
 from parsers import ResponseParser
 
 @app.post("/citizen_chat", response_model=CitizenChatResponse)
@@ -1284,12 +1367,29 @@ async def populate_optimized_dashboard_endpoint(request: DashboardRequest):
             "incident_description": request.case_context,
             # Optionally enrich with legal sections, compliance gaps, etc.
         }
-        # If legal grid output is available, add to FIR fields
-        if "legal" in result:
-            fir_fields["legal_sections"] = str(result["legal"])
+
+        # 🚀 REVOLUTIONARY FIX: Use correct keys from result
+        logger.info(f"🔍 [FIR] Available result keys: {list(result.keys())}")
+
+        # Check for BNS laws output (correct key)
+        if "bns_laws" in result:
+            fir_fields["legal_sections"] = str(result["bns_laws"])
+            logger.info(f"✅ [FIR] Using BNS laws output: {str(result['bns_laws'])[:100]}...")
             # Extract and inject real BNS codes for FIR draft
-            fir_fields["bns_sections"] = suggest_sections_from_laws_grid(str(result["legal"]))
-        if "compliance" in result:
+            extracted_sections = suggest_sections_from_laws_grid(str(result["bns_laws"]))
+            fir_fields["bns_sections"] = ", ".join(extracted_sections) if extracted_sections else ""
+        elif "legal" in result:
+            fir_fields["legal_sections"] = str(result["legal"])
+            logger.info(f"✅ [FIR] Using legal output: {str(result['legal'])[:100]}...")
+            # Extract and inject real BNS codes for FIR draft
+            extracted_sections = suggest_sections_from_laws_grid(str(result["legal"]))
+            fir_fields["bns_sections"] = ", ".join(extracted_sections) if extracted_sections else ""
+        else:
+            logger.warning(f"⚠️ [FIR] No BNS laws or legal output found in result")
+
+        if "legal_compliance" in result:
+            fir_fields["compliance_summary"] = str(result["legal_compliance"])
+        elif "compliance" in result:
             fir_fields["compliance_summary"] = str(result["compliance"])
 
         fir_grid = fir_intelligence_dashboard(FIRIntelligenceRequest(fir_fields=fir_fields))
@@ -1297,9 +1397,78 @@ async def populate_optimized_dashboard_endpoint(request: DashboardRequest):
 
         logger.info(f"✅ [OPTIMIZED] 4-grid dashboard completed in {result.get('generation_time', 0):.2f}s")
         return result
-        
+
     except Exception as e:
         logging.error(f"Error in optimized dashboard: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/dashboard/populate-structured")
+async def populate_structured_dashboard_endpoint(request: DashboardRequest):
+    """
+    🏗️ STRUCTURED REVOLUTIONARY DASHBOARD - Best of Both Worlds!
+
+    Combines revolutionary AI capabilities with structured Pydantic responses:
+    - Revolutionary crime-type detection and specialized analysis
+    - Structured, type-safe responses for frontend integration
+    - Enhanced metadata and progress tracking
+    - Comprehensive error handling and validation
+
+    Returns structured response with:
+    - Grid 1: Enhanced Compliance Response (with progress tracking)
+    - Grid 2: Enhanced Laws Response (with severity classification)
+    - Grid 3: Enhanced Live Cases Response (with analytics)
+    - Grid 4: Enhanced FIR Intelligence Response (with completeness)
+
+    Perfect for frontend applications requiring structured data!
+    """
+    try:
+        logger.info(f"🏗️ [STRUCTURED] Starting structured revolutionary dashboard for case {request.case_id}")
+
+        # Get revolutionary analysis (unstructured)
+        if REVOLUTIONARY_AGENTS_AVAILABLE and REVOLUTIONARY_PROMPTS_AVAILABLE:
+            logger.info(f"🧠 Using REVOLUTIONARY system with structured output")
+            unstructured_result = await populate_revolutionary_dashboard(request.case_id, request.case_context)
+        else:
+            logger.info(f"⚡ Using standard system with structured output")
+            unstructured_result = await populate_optimized_dashboard(request.case_id, request.case_context)
+
+        # Add FIR Intelligence with correct keys
+        fir_fields = {
+            "complainant_name": "[Auto]",
+            "incident_description": request.case_context,
+        }
+
+        # 🚀 REVOLUTIONARY FIX: Use correct keys for structured endpoint too
+        if "bns_laws" in unstructured_result:
+            fir_fields["legal_sections"] = str(unstructured_result["bns_laws"])
+            extracted_sections = suggest_sections_from_laws_grid(str(unstructured_result["bns_laws"]))
+            fir_fields["bns_sections"] = ", ".join(extracted_sections) if extracted_sections else ""
+        elif "legal" in unstructured_result:
+            fir_fields["legal_sections"] = str(unstructured_result["legal"])
+            extracted_sections = suggest_sections_from_laws_grid(str(unstructured_result["legal"]))
+            fir_fields["bns_sections"] = ", ".join(extracted_sections) if extracted_sections else ""
+
+        if "legal_compliance" in unstructured_result:
+            fir_fields["compliance_summary"] = str(unstructured_result["legal_compliance"])
+        elif "compliance" in unstructured_result:
+            fir_fields["compliance_summary"] = str(unstructured_result["compliance"])
+
+        fir_grid = fir_intelligence_dashboard(FIRIntelligenceRequest(fir_fields=fir_fields))
+        unstructured_result["grid_4_fir_intelligence"] = fir_grid.dict()
+
+        # Convert to structured format
+        if ENHANCED_MODELS_AVAILABLE:
+            logger.info(f"🏗️ Converting to structured response format")
+            structured_response = RevolutionaryResponseParser.convert_current_to_structured(unstructured_result)
+
+            logger.info(f"✅ [STRUCTURED] Revolutionary dashboard completed in {structured_response.generation_time:.2f}s")
+            return structured_response
+        else:
+            logger.warning(f"⚠️ Enhanced models not available, returning unstructured response")
+            return unstructured_result
+
+    except Exception as e:
+        logger.error(f"❌ [STRUCTURED] Dashboard error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.post("/grid/compliance", response_model=ComplianceResponse)

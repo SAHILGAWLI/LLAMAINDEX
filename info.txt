@@ -1,0 +1,932 @@
+
+
+
+this was the out put one (
+
+{
+"legal_compliance":
+"In the case of medical negligence involving negligent surgery leading to patient complications, the following compliance framework should be followed: 1. **Application of BNS 2023 Sections**: Under Section 106 of the Bharatiya Nyaya Sanhita, 2023, if a registered medical practitioner commits a rash or negligent act during a medical procedure, they may face up to two years of imprisonment and a fine. 2. **BNSS 2023 Investigation Procedures**: The investigation must include a detailed report prepared by the medical practitioner, documenting the victim's personal details, nature of injuries, and mental condition. This report should be forwarded to the investigating officer promptly. 3. **BSA 2023 Standards for Evidence Collection**: Evidence must be collected following strict protocols, including timely medical examinations within twenty-four hours, obtaining consent, and documenting examination times. Witness statements should also be recorded without unnecessary delays. 4. **Victim Rights and Constitutional Safeguards**: Victims have the right to immediate medical aid, compensation, legal redress, and protection of their rights under the Constitution. They can seek compensation from the State or District Legal Services Authority if the offender is not traced. 5. **Legal Documentation Requirements**: Essential documents include the medical examination report, consent documentation, FIR and related documents, witness statements, and any additional evidence. All documentation must be completed and submitted within specified timeframes to support the legal proceedings. By adhering to this compliance framework, the investigation and subsequent legal actions can be conducted effectively, ensuring accountability and justice for the victim."
+"bns_laws":
+"In the context of medical negligence as per the Bharatiya Nyaya Sanhita (BNS) 2023, the primary applicable section is Section 106. This section states that if a registered medical practitioner commits a rash or negligent act while performing a medical procedure, they may face a punishment of up to 2 years of imprisonment and a fine. The severity of the case involving negligent surgery leading to patient complications indicates a serious breach of duty by the medical practitioner. Given the circumstances, the case could be classified under Section 106(1) of the BNS 2023, which emphasizes accountability for negligent actions in medical practice. In summary: - **Applicable Section**: BNS 2023, Section 106 - **Severity**: High, due to complications arising from negligent surgery - **Punishment**: Up to 2 years of imprisonment and a fine - **Application**: Directly applicable to the case circumstances involving failure to follow proper medical protocols."
+"live_cases":{
+"message":
+"✅ ENHANCED cases analysis completed - Found 10 relevant medical negligence cases"
+"status":
+"success"
+"cases":[
+0:{
+"title":
+"Sqn.Ldr (Retd) R .V. Nathan (10507) vs The Union Of India on 8 July, 2019"
+"court":
+"Karnataka High Court"
+"date":
+"2019-07-08"
+"citation":
+"No Citation"
+"summary":
+"[Medical Negligence] patients may report to the nearest <b>hospital</b>, preferably empanelled. (a) Empanelled <b>Hospital</b> - Immediate emergency treatment in ..."
+"similarity_score":
+0.8
+"url":
+"https://indiankanoon.org/doc/83321882/"
+"crime_type":
+"medical_negligence"
+"confidence":
+0.5
+}
+1:{
+"title":
+"In Re : Dr. Dipankar Ganguly & Ors vs State Of Punjab & Anr. (2005 Scc (Cri) on 4 March, 2016"
+"court":
+"Calcutta High Court (Appellete Side)"
+"date":
+"2016-03-04"
+"citation":
+"No Citation"
+"summary":
+"[Medical Negligence] Sushmita Mitter (since deceased) at Apollo Gleneagles <b>Hospital</b>, the victim suffered from <b>medical</b> <b>malpractice</b> and <b>negligence</b> resulting in her death. The learned Magistra..."
+"similarity_score":
+0.75
+"url":
+"https://indiankanoon.org/doc/162982551/"
+"crime_type":
+"medical_negligence"
+"confidence":
+0.5
+}
+2:{
+"title":
+"Hans Raj Sharma vs U.O.I. And Ors. on 15 March, 2013"
+"court":
+"Jammu & Kashmir High Court"
+"date":
+"2013-03-15"
+"citation":
+"No Citation"
+"summary":
+"[Medical Negligence] empanelled <b>hospital</b>, if the emergency condition so demands:- (a) Empanelled <b>Hospital</b>- Immediate emergency treatment in any empanelled <b>hospital</b> will be rendered to ESM on con..."
+"similarity_score":
+0.7000000000000001
+"url":
+"https://indiankanoon.org/doc/2547067/"
+"crime_type":
+"medical_negligence"
+"confidence":
+0.5
+}
+3:{
+"title":
+"Hans Raj Sharma vs Union Of India And Ors on 15 March, 2013"
+"court":
+"Jammu & Kashmir High Court"
+"date":
+"2013-03-15"
+"citation":
+"No Citation"
+"summary":
+"[Medical Negligence] empanelled <b>hospital</b>, if the emergency condition so demands:- (a) Empanelled <b>Hospital</b>- Immediate emergency treatment in any empanelled <b>hospital</b> will be rendered to ESM on confi..."
+"similarity_score":
+0.65
+"url":
+"https://indiankanoon.org/doc/24358676/"
+"crime_type":
+"medical_negligence"
+"confidence":
+0.5
+}
+4:{
+"title":
+"Sirildas vs Dr. Rajendra Banshariya & Ors. on 29 April, 2016"
+"court":
+"State Consumer Disputes Redressal Commission"
+"date":
+"2016-04-29"
+"citation":
+"No Citation"
+"summary":
+"[Medical Negligence] <b>Medical</b> practitioners, <b>hospitals</b> and nursing homes remedy against <b>medical</b> <b>malpractice</b> or <b>negligence</b> held, is available under the Act to affected persons as consumers..."
+"similarity_score":
+0.6000000000000001
+"url":
+"https://indiankanoon.org/doc/88971009/"
+"crime_type":
+"medical_negligence"
+"confidence":
+0.5
+}
+5:{
+"title":
+"Kumari. Mariyam Kousar vs State Of Karnataka, Vidhana Soudha on 6 April, 2023"
+"court":
+"State Consumer Disputes Redressal Commission"
+"date":
+"2023-04-06"
+"citation":
+"No Citation"
+"summary":
+"[Medical Negligence] complainant no.2 further alleged that due to professional/<b>medical</b> <b>negligence</b> and <b>malpractice</b> of the Opposite Parties herein, the condition of the complainant ... only in consultat..."
+"similarity_score":
+0.55
+"url":
+"https://indiankanoon.org/doc/7298462/"
+"crime_type":
+"medical_negligence"
+"confidence":
+0.5
+}
+6:{
+"title":
+"Dr.S.Rajanikanth, No.40, 7Th Cross ... vs . S.Abdul Khadeer, No.50, Katmani ... on 13 March, 2014"
+"court":
+"State Consumer Disputes Redressal Commission"
+"date":
+"2014-03-13"
+"citation":
+"No Citation"
+"summary":
+"[Medical Negligence] Dr.S.Rajanikanth, No.40, 7Th Cross ... vs . S.Abdul Khadeer, No.50, Katmani ... on..."
+"similarity_score":
+0.5
+"url":
+"https://indiankanoon.org/doc/89656622/"
+"crime_type":
+"medical_negligence"
+"confidence":
+0.5
+}
+7:{
+"title":
+"Union Of India Through The Secretary To ... vs Sohan Lal Sharma on 4 May, 2012"
+"court":
+"State Consumer Disputes Redressal Commission"
+"date":
+"2012-05-04"
+"citation":
+"No Citation"
+"summary":
+"[Medical Negligence] patients may report to the nearest <b>hospital</b>, preferably empanelled. (a) Empanelled <b>Hospital</b>: Immediate emergency treatment in any empanelled <b>h..."
+"similarity_score":
+0.45
+"url":
+"https://indiankanoon.org/doc/124147968/"
+"crime_type":
+"medical_negligence"
+"confidence":
+0.5
+}
+8:{
+"title":
+"Shishir Chand vs T.V George on 7 March, 2025"
+"court":
+"Delhi District Court"
+"date":
+"2025-03-07"
+"citation":
+"No Citation"
+"summary":
+"[Medical Negligence] India), an NGO helping victims of <b>medical</b> <b>negligence</b>, <b>medical</b> <b>malpractice</b> and <b>medical</b> errors in top public and private <b..."
+"similarity_score":
+0.4
+"url":
+"https://indiankanoon.org/doc/102635654/"
+"crime_type":
+"medical_negligence"
+"confidence":
+0.5
+}
+9:{
+"title":
+"Dr. Deepak Kumar Satsangi & Anr. vs Sanjeevan <b>Medical</b> Research Centre (P) ... on 1 April, 2016"
+"court":
+"National Consumer Disputes Redressal"
+"date":
+"2016-04-01"
+"citation":
+"No Citation"
+"summary":
+"[Medical Negligence] Being aggrieved by the aforesaid <b>malpractice</b> of the <b>medical</b> service/ profession, misrepresentation, gross <b>negligence</b> and deficiency in service committed by the respondents, the co..."
+"similarity_score":
+0.35000000000000003
+"url":
+"https://indiankanoon.org/doc/44870717/"
+"crime_type":
+"medical_negligence"
+"confidence":
+0.5
+}
+]
+"total_cases":
+10
+"generation_time":
+0.31442880630493164
+"api_mode":
+"enhanced_live"
+"crime_type":
+"medical_negligence"
+"search_optimization":
+"advanced_prompt_based"
+}
+"generation_time":
+48.98291778564453
+"grid_count":
+3
+"optimization_enabled":
+true
+"performance_improvement":
+"Revolutionary 5-10x accuracy improvement with knowledge-base-aware prompts"
+"cost_reduction":
+"50% fewer API calls with optimized prompting"
+"ai_confidence":
+0.98
+"success_metrics":{
+"legal_analysis":
+true
+"live_cases":
+true
+"overall":
+true
+}
+"prompt_system":
+"revolutionary_knowledge_aware"
+"knowledge_base_utilization":
+"comprehensive_modern_legal_framework"
+"grid_4_fir_intelligence":{
+"fir_text":
+"═══════════════════════════════════════════════════════════════════ FIRST INFORMATION REPORT (FIR) Under Section 154 Cr.P.C. ═══════════════════════════════════════════════════════════════════ FIR No.: FIR-2025-07301945 Police Station: [Not specified] District: [To be filled] Date of Registration: 30/07/2025 Time of Registration: 19:45 ─────────────────────────────────────────────────────────────────── INCIDENT DETAILS ─────────────────────────────────────────────────────────────────── Date of Occurrence: [Not specified] Time of Occurrence: [Not specified] Place of Occurrence: [Not specified] ─────────────────────────────────────────────────────────────────── COMPLAINANT DETAILS ─────────────────────────────────────────────────────────────────── Name: [Auto] Address: [Not specified] Contact Number: [Not provided] Relationship to Incident: Direct complainant ─────────────────────────────────────────────────────────────────── ACCUSED DETAILS ─────────────────────────────────────────────────────────────────── Name: [Unknown/Unidentified person(s)] Description: [No description available] Address: [Unknown] ─────────────────────────────────────────────────────────────────── DETAILS OF INCIDENT ─────────────────────────────────────────────────────────────────── Medical malpractice case involving negligent surgery leading to patient complications. Hospital failed to follow proper protocols. ─────────────────────────────────────────────────────────────────── APPLICABLE LEGAL PROVISIONS ─────────────────────────────────────────────────────────────────── Sections under Bharatiya Nyaya Sanhita (BNS): • BNS 279 - Rash driving or riding on a public way • BNS 304A - Causing death by negligence • BNS 336 - Act endangering life or personal safety of others • BNS 337 - Causing hurt by act endangering life • BNS 338 - Causing grievous hurt by act endangering life • Section 304A - BNS • Section 336 - BNS • Section 337 - BNS ─────────────────────────────────────────────────────────────────── CERTIFICATION ─────────────────────────────────────────────────────────────────── I hereby certify that the above information is true to the best of my knowledge and belief. I understand that providing false information is an offense under the law. Complainant's Signature: _________________________ Date: 30/07/2025 Received by: Station House Officer: _________________________ Signature: _________________________ Date: 30/07/2025 Time: 19:45 ─────────────────────────────────────────────────────────────────── Note: This FIR has been generated using AI assistance. Please verify all details before final submission. ═══════════════════════════════════════════════════════════════════"
+"grid_1_sections":[
+0
+:
+"BNS 279 - Rash driving or riding on a public way"
+1
+:
+"BNS 304A - Causing death by negligence"
+2
+:
+"BNS 336 - Act endangering life or personal safety of others"
+3
+:
+"BNS 337 - Causing hurt by act endangering life"
+4
+:
+"BNS 338 - Causing grievous hurt by act endangering life"
+5
+:
+"Section 304A - BNS"
+6
+:
+"Section 336 - BNS"
+7
+:
+"Section 337 - BNS"
+]
+"grid_2_completeness":[
+0:{
+"field":
+"Complainant Name"
+"field_key":
+"complainant_name"
+"status":
+"complete"
+"priority":
+"low"
+"suggestion":
+"Full name of the person filing the complaint"
+"required":
+true
+}
+1:{
+"field":
+"Complainant Address"
+"field_key":
+"complainant_address"
+"status":
+"missing"
+"priority":
+"high"
+"suggestion":
+"Complete address with locality, city, and pin code"
+"required":
+true
+}
+2:{
+"field":
+"Incident Date"
+"field_key":
+"incident_date"
+"status":
+"missing"
+"priority":
+"high"
+"suggestion":
+"Date when the incident occurred (DD/MM/YYYY format)"
+"required":
+true
+}
+3:{
+"field":
+"Incident Time"
+"field_key":
+"incident_time"
+"status":
+"missing"
+"priority":
+"high"
+"suggestion":
+"Approximate time of incident (24-hour format preferred)"
+"required":
+true
+}
+4:{
+"field":
+"Place of Occurrence"
+"field_key":
+"incident_place"
+"status":
+"missing"
+"priority":
+"high"
+"suggestion":
+"Specific location where incident occurred"
+"required":
+true
+}
+5:{
+"field":
+"Incident Description"
+"field_key":
+"incident_description"
+"status":
+"complete"
+"priority":
+"low"
+"suggestion":
+"Detailed description of what happened (minimum 20 characters)"
+"required":
+true
+}
+6:{
+"field":
+"Police Station"
+"field_key":
+"police_station"
+"status":
+"missing"
+"priority":
+"high"
+"suggestion":
+"Name of the police station where FIR is being filed"
+"required":
+true
+}
+7:{
+"field":
+"Accused Name"
+"field_key":
+"accused_name"
+"status":
+"optional"
+"priority":
+"low"
+"suggestion":
+"Name of accused person (if known)"
+"required":
+false
+}
+8:{
+"field":
+"Witness Details"
+"field_key":
+"witness_details"
+"status":
+"optional"
+"priority":
+"low"
+"suggestion":
+"Names and contact details of witnesses (if any)"
+"required":
+false
+}
+9:{
+"field":
+"Additional Details"
+"field_key":
+"additional_details"
+"status":
+"optional"
+"priority":
+"low"
+"suggestion":
+"Any other relevant information"
+"required":
+false
+}
+10:{
+"field":
+"Medical Records"
+"field_key":
+"medical_records"
+"status":
+"incomplete"
+"priority":
+"high"
+"suggestion":
+"Obtain complete medical records and treatment history"
+"required":
+true
+}
+11:{
+"field":
+"Expert Medical Opinion"
+"field_key":
+"expert_opinion"
+"status":
+"incomplete"
+"priority":
+"high"
+"suggestion":
+"Get independent medical expert assessment"
+"required":
+true
+}
+12:{
+"field":
+"Hospital Protocols"
+"field_key":
+"hospital_protocols"
+"status":
+"incomplete"
+"priority":
+"medium"
+"suggestion":
+"Document standard operating procedures"
+"required":
+false
+}
+]
+"grid_3_best_practices":[
+0
+:
+"🏥 Obtain and attach medical examination report if victim was injured"
+1
+:
+"📋 Include details of treatment received and medical expenses"
+2
+:
+"🩺 Mention the name of doctor/hospital where treatment was provided"
+3
+:
+"👥 Include witness details if any person saw the incident"
+4
+:
+"🔍 Provide description of accused if name is unknown (height, build, clothing, etc.)"
+5
+:
+"📍 Mention if accused is known to complainant or is a stranger"
+6
+:
+"📋 Keep copies of all documents submitted with FIR"
+7
+:
+"📞 Note down the FIR number and investigating officer's contact details"
+8
+:
+"⏰ Follow up regularly on investigation progress"
+9
+:
+"🏥 Secure all medical records and treatment protocols immediately"
+10
+:
+"👨‍⚕️ Obtain expert medical opinion from qualified practitioners"
+11
+:
+"📋 Document hospital's standard operating procedures"
+12
+:
+"⚖️ Consider BNS 304A (negligence) and 336-338 (endangering life) sections"
+]
+"generation_time":
+0
+"ai_confidence":
+0.59
+}
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+)
+
+
+
+and this is the output two (
+
+{
+"legal_compliance":
+"1. **BNS Section 106 Compliance** - Status: Incomplete - Priority: High - Details: Verify that the medical practitioner involved is registered under the National Medical Commission Act, 2019, and document any negligent acts. 2. **BNS Section 107 Compliance** - Status: Pending - Priority: Medium - Details: Assess any involvement in abetting suicide or self-harm due to surgical complications. 3. **Initial Police Report** - Status: Incomplete - Priority: High - Details: Ensure the police officer records the grounds for investigation and specifics of the alleged malpractice. 4. **Search and Seizure Compliance** - Status: Pending - Priority: Medium - Details: Conduct searches for relevant medical records while ensuring legal protocols are followed. 5. **Patient Examination Report** - Status: Incomplete - Priority: High - Details: Document post-surgery examination details, including patient information and observed complications. 6. **Surgical Protocol Adherence** - Status: Incomplete - Priority: High - Details: Review compliance with established surgical protocols and guidelines. 7. **Informed Consent Verification** - Status: Incomplete - Priority: High - Details: Confirm that the patient was fully informed about the surgery's risks and benefits before giving consent. 8. **Post-Operative Care Documentation** - Status: Incomplete - Priority: High - Details: Document the post-operative care provided, including monitoring for complications. COMPLIANCE SCORE: 0/10 items complete"
+"bns_laws":
+"The relevant BNS law sections for a medical malpractice case involving negligent surgery and patient complications include: 1. **Section 289**: Addresses negligent conduct, though it primarily pertains to animals, it highlights the broader context of negligence. 2. **Section 304A**: Pertains to causing death by negligence, crucial if the negligent surgery resulted in the patient's death. 3. **Section 336**: Relates to acts that may endanger life or personal safety of others. 4. **Section 337**: Addresses causing hurt by endangering life or personal safety. 5. **Section 338**: Focuses on causing grievous hurt by endangering life or personal safety. These sections can be invoked to establish a case of medical negligence, particularly if the hospital failed to follow proper protocols during the surgery, thereby endangering the patient's life and safety."
+"live_cases":{
+"message":
+"✅ LIVE cases analysis completed - Found 10 relevant cases from Indian Kanoon API"
+"status":
+"success"
+"cases":[
+0:{
+"title":
+"Dr.S.Rajanikanth, No.40, 7Th Cross ... vs . S.Abdul Khadeer, No.50, Katmani ... on 13 March, 2014"
+"court":
+"State Consumer Disputes Redressal Commission"
+"date":
+"2014-03-13"
+"citation":
+"No Citation"
+"summary":
+" Dr.S.Rajanikanth, No.40, 7Th Cross ... vs . S.Abdul Khadeer, No.50, Katmani ... on..."
+"similarity_score":
+0.8
+"url":
+"https://indiankanoon.org/doc/89656622/"
+}
+1:{
+"title":
+"Sqn.Ldr (Retd) R .V. Nathan (10507) vs The Union Of India on 8 July, 2019"
+"court":
+"Karnataka High Court"
+"date":
+"2019-07-08"
+"citation":
+"No Citation"
+"summary":
+"patients may report to the nearest <b>hospital</b>, preferably empanelled. (a) Empanelled <b>Hospital</b> - Immediate emergency treatment in ..."
+"similarity_score":
+0.75
+"url":
+"https://indiankanoon.org/doc/83321882/"
+}
+2:{
+"title":
+"Fight For Human Rights vs Union Of India & Anr on 23 December, 2014"
+"court":
+"Delhi High Court"
+"date":
+"2014-12-23"
+"citation":
+"No Citation"
+"summary":
+"<b>malpractices</b> of <b>hospitals</b> for paying commissions to doctors for referring patients and for carrying out unnecessary procedures, to ..."
+"similarity_score":
+0.7000000000000001
+"url":
+"https://indiankanoon.org/doc/190370573/"
+}
+3:{
+"title":
+"In Re : Dr. Dipankar Ganguly & Ors vs State Of Punjab & Anr. (2005 Scc (Cri) on 4 March, 2016"
+"court":
+"Calcutta High Court (Appellete Side)"
+"date":
+"2016-03-04"
+"citation":
+"No Citation"
+"summary":
+"namely, Smt. Sushmita Mitter (since deceased) at Apollo Gleneagles <b>Hospital</b>, the victim suffered from <b>medical</b> <b>malpractice</b> and negligence resulting in her death. The learned Ma..."
+"similarity_score":
+0.65
+"url":
+"https://indiankanoon.org/doc/162982551/"
+}
+4:{
+"title":
+"Dr. S. Ganapathy vs State Of Kerala on 22 May, 2017"
+"court":
+"Kerala High Court"
+"date":
+"2017-05-22"
+"citation":
+"No Citation"
+"summary":
+"candidate for transplant, but <b>hospitals</b> performed transplant surgery which ended with fatal results. This is a matter of <b>malpractice</b>. If any specific case is brought ... avoid <b>medi..."
+"similarity_score":
+0.6000000000000001
+"url":
+"https://indiankanoon.org/doc/126417805/"
+}
+5:{
+"title":
+"Hans Raj Sharma vs U.O.I. And Ors. on 15 March, 2013"
+"court":
+"Jammu & Kashmir High Court"
+"date":
+"2013-03-15"
+"citation":
+"No Citation"
+"summary":
+"empanelled <b>hospital</b>, if the emergency condition so demands:- (a) Empanelled <b>Hospital</b>- Immediate emergency treatment in any empanelled <b>hospital</b> will be rendered to ESM on con..."
+"similarity_score":
+0.55
+"url":
+"https://indiankanoon.org/doc/2547067/"
+}
+6:{
+"title":
+"Hans Raj Sharma vs Union Of India And Ors on 15 March, 2013"
+"court":
+"Jammu & Kashmir High Court"
+"date":
+"2013-03-15"
+"citation":
+"No Citation"
+"summary":
+"empanelled <b>hospital</b>, if the emergency condition so demands:- (a) Empanelled <b>Hospital</b>- Immediate emergency treatment in any empanelled <b>hospital</b> will be rendered to ESM on confi..."
+"similarity_score":
+0.5
+"url":
+"https://indiankanoon.org/doc/24358676/"
+}
+7:{
+"title":
+"Kovi Rakesh, vs Dr. Ntr University Of Health Sciences, on 17 February, 2021"
+"court":
+"Andhra Pradesh High Court - Amravati"
+"date":
+"2021-02-17"
+"citation":
+"No Citation"
+"summary":
+"<b>Medical</b> College &amp; <b>Hospital</b>, Chinakondrapadu To The Controller of Examinations, NTRUHS, Vijayawada. Through: Dean, Katuri <b>Medical</b> College &amp; <b>Ho..."
+"similarity_score":
+0.45
+"url":
+"https://indiankanoon.org/doc/55127975/"
+}
+8:{
+"title":
+"Ravi Kumar Sharma vs The State Of Madhya Pradesh on 11 November, 2024"
+"court":
+"Madhya Pradesh High Court"
+"date":
+"2024-11-11"
+"citation":
+"No Citation"
+"summary":
+"<b>Hospital</b>, Gwalior which is the associated <b>hospital</b> of G.R. <b>Medical</b> College which is a Government run Autonomous <b>Medical</b..."
+"similarity_score":
+0.4
+"url":
+"https://indiankanoon.org/doc/48820797/"
+}
+9:{
+"title":
+"Sanjeev Kumar vs Gnctd on 16 January, 2025"
+"court":
+"Central Information Commission"
+"date":
+"2025-01-16"
+"citation":
+"No Citation"
+"summary":
+"without going through the contents. In enclosure dated 11.01.2024, Artemis <b>Hospital</b> informed <b>Medical</b> Superintendent (Nursing Home) Dr Nitin Kumar that reply to my complaint would ... dat..."
+"similarity_score":
+0.35000000000000003
+"url":
+"https://indiankanoon.org/doc/166876670/"
+}
+]
+"total_cases":
+10
+"generation_time":
+0.44193339347839355
+"api_mode":
+"live"
+}
+"generation_time":
+27.071781635284424
+"grid_count":
+3
+"optimization_enabled":
+true
+"performance_improvement":
+"3-5x faster than 5-grid system"
+"cost_reduction":
+"40% fewer API calls"
+"ai_confidence":
+0.95
+"success_metrics":{
+"legal_analysis":
+true
+"live_cases":
+true
+"overall":
+true
+}
+"grid_4_fir_intelligence":{
+"fir_text":
+"═══════════════════════════════════════════════════════════════════ FIRST INFORMATION REPORT (FIR) Under Section 154 Cr.P.C. ═══════════════════════════════════════════════════════════════════ FIR No.: FIR-2025-07302007 Police Station: [Not specified] District: [To be filled] Date of Registration: 30/07/2025 Time of Registration: 20:07 ─────────────────────────────────────────────────────────────────── INCIDENT DETAILS ─────────────────────────────────────────────────────────────────── Date of Occurrence: [Not specified] Time of Occurrence: [Not specified] Place of Occurrence: [Not specified] ─────────────────────────────────────────────────────────────────── COMPLAINANT DETAILS ─────────────────────────────────────────────────────────────────── Name: [Auto] Address: [Not specified] Contact Number: [Not provided] Relationship to Incident: Direct complainant ─────────────────────────────────────────────────────────────────── ACCUSED DETAILS ─────────────────────────────────────────────────────────────────── Name: [Unknown/Unidentified person(s)] Description: [No description available] Address: [Unknown] ─────────────────────────────────────────────────────────────────── DETAILS OF INCIDENT ─────────────────────────────────────────────────────────────────── Medical malpractice case involving negligent surgery leading to patient complications. Hospital failed to follow proper protocols. ─────────────────────────────────────────────────────────────────── APPLICABLE LEGAL PROVISIONS ─────────────────────────────────────────────────────────────────── Sections under Bharatiya Nyaya Sanhita (BNS): • BNS 279 - Rash driving or riding on a public way • BNS 304A - Causing death by negligence • BNS 336 - Act endangering life or personal safety of others • BNS 337 - Causing hurt by act endangering life • BNS 338 - Causing grievous hurt by act endangering life ─────────────────────────────────────────────────────────────────── CERTIFICATION ─────────────────────────────────────────────────────────────────── I hereby certify that the above information is true to the best of my knowledge and belief. I understand that providing false information is an offense under the law. Complainant's Signature: _________________________ Date: 30/07/2025 Received by: Station House Officer: _________________________ Signature: _________________________ Date: 30/07/2025 Time: 20:07 ─────────────────────────────────────────────────────────────────── Note: This FIR has been generated using AI assistance. Please verify all details before final submission. ═══════════════════════════════════════════════════════════════════"
+"grid_1_sections":[
+0
+:
+"BNS 279 - Rash driving or riding on a public way"
+1
+:
+"BNS 304A - Causing death by negligence"
+2
+:
+"BNS 336 - Act endangering life or personal safety of others"
+3
+:
+"BNS 337 - Causing hurt by act endangering life"
+4
+:
+"BNS 338 - Causing grievous hurt by act endangering life"
+]
+"grid_2_completeness":[
+0:{
+"field":
+"Complainant Name"
+"field_key":
+"complainant_name"
+"status":
+"complete"
+"priority":
+"low"
+"suggestion":
+"Full name of the person filing the complaint"
+"required":
+true
+}
+1:{
+"field":
+"Complainant Address"
+"field_key":
+"complainant_address"
+"status":
+"missing"
+"priority":
+"high"
+"suggestion":
+"Complete address with locality, city, and pin code"
+"required":
+true
+}
+2:{
+"field":
+"Incident Date"
+"field_key":
+"incident_date"
+"status":
+"missing"
+"priority":
+"high"
+"suggestion":
+"Date when the incident occurred (DD/MM/YYYY format)"
+"required":
+true
+}
+3:{
+"field":
+"Incident Time"
+"field_key":
+"incident_time"
+"status":
+"missing"
+"priority":
+"high"
+"suggestion":
+"Approximate time of incident (24-hour format preferred)"
+"required":
+true
+}
+4:{
+"field":
+"Place of Occurrence"
+"field_key":
+"incident_place"
+"status":
+"missing"
+"priority":
+"high"
+"suggestion":
+"Specific location where incident occurred"
+"required":
+true
+}
+5:{
+"field":
+"Incident Description"
+"field_key":
+"incident_description"
+"status":
+"complete"
+"priority":
+"low"
+"suggestion":
+"Detailed description of what happened (minimum 20 characters)"
+"required":
+true
+}
+6:{
+"field":
+"Police Station"
+"field_key":
+"police_station"
+"status":
+"missing"
+"priority":
+"high"
+"suggestion":
+"Name of the police station where FIR is being filed"
+"required":
+true
+}
+7:{
+"field":
+"Accused Name"
+"field_key":
+"accused_name"
+"status":
+"optional"
+"priority":
+"low"
+"suggestion":
+"Name of accused person (if known)"
+"required":
+false
+}
+8:{
+"field":
+"Witness Details"
+"field_key":
+"witness_details"
+"status":
+"optional"
+"priority":
+"low"
+"suggestion":
+"Names and contact details of witnesses (if any)"
+"required":
+false
+}
+9:{
+"field":
+"Additional Details"
+"field_key":
+"additional_details"
+"status":
+"optional"
+"priority":
+"low"
+"suggestion":
+"Any other relevant information"
+"required":
+false
+}
+]
+"grid_3_best_practices":[
+0
+:
+"🏥 Obtain and attach medical examination report if victim was injured"
+1
+:
+"📋 Include details of treatment received and medical expenses"
+2
+:
+"🩺 Mention the name of doctor/hospital where treatment was provided"
+3
+:
+"👥 Include witness details if any person saw the incident"
+4
+:
+"🔍 Provide description of accused if name is unknown (height, build, clothing, etc.)"
+5
+:
+"📍 Mention if accused is known to complainant or is a stranger"
+6
+:
+"📋 Keep copies of all documents submitted with FIR"
+7
+:
+"📞 Note down the FIR number and investigating officer's contact details"
+8
+:
+"⏰ Follow up regularly on investigation progress"
+]
+"generation_time":
+0
+"ai_confidence":
+0.61
+}
+}
+)

@@ -416,25 +416,68 @@ with tab3:
                     if response.status_code == 200:
                         result = response.json()
                         
-                        # Success banner
-                        st.success(f"✅ Optimized dashboard completed in {execution_time:.2f}s!")
-                        
-                        # Performance metrics
+                        # Revolutionary Success banner
+                        generation_time = result.get('generation_time', execution_time)
+                        time_status = "🚀 Lightning Fast" if generation_time < 30 else "✅ Excellent" if generation_time < 60 else "⚠️ Acceptable"
+                        st.success(f"✅ Revolutionary 4-Grid Dashboard completed in {execution_time:.2f}s! ({time_status})")
+
+                        # Enhanced Performance metrics with revolutionary features
                         if show_metadata:
-                            col1, col2, col3, col4 = st.columns(4)
+                            col1, col2, col3, col4, col5 = st.columns(5)
                             with col1:
-                                st.metric("⏱️ Total Time", f"{execution_time:.2f}s")
+                                st.metric("⏱️ Total Time", f"{execution_time:.2f}s",
+                                         delta="🚀 Fast" if execution_time < 30 else "✅ Good" if execution_time < 60 else "")
                             with col2:
-                                st.metric("🎯 Grid Count", 4)
+                                grid_count = result.get('grid_count', 4)
+                                st.metric("📊 Grid Count", grid_count, delta="📝 +FIR" if grid_count >= 4 else "")
                             with col3:
-                                st.metric("🤖 AI Confidence", f"{result.get('ai_confidence', 0.9):.1%}")
+                                ai_confidence = result.get('ai_confidence', 0.9)
+                                confidence_delta = "🎯 High" if ai_confidence > 0.9 else "✅ Good" if ai_confidence > 0.7 else "⚠️ Low"
+                                st.metric("🧠 AI Confidence", f"{ai_confidence:.1%}", delta=confidence_delta)
                             with col4:
-                                st.metric("💰 Cost Reduction", result.get("cost_reduction", "40%"))
-                            
-                            # Success metrics
+                                cost_reduction = result.get("cost_reduction", "40%")
+                                st.metric("💰 Cost Efficiency", cost_reduction, delta="🚀 Optimized")
+                            with col5:
+                                prompt_system = result.get('prompt_system', 'standard')
+                                system_type = "🚀 Revolutionary" if 'revolutionary' in prompt_system else "⚡ Standard"
+                                st.metric("🧠 AI System", system_type)
+
+                            # Revolutionary Features Detection
+                            revolutionary_features = []
+                            if 'revolutionary' in result.get('prompt_system', ''):
+                                revolutionary_features.append("🧠 Revolutionary Prompts")
+                            if result.get('crime_type_detection'):
+                                revolutionary_features.append("🎯 Crime Type Detection")
+                            if 'comprehensive' in result.get('knowledge_base_utilization', ''):
+                                revolutionary_features.append("📚 Knowledge Base")
+                            if result.get('grid_4_fir_intelligence'):
+                                revolutionary_features.append("📝 FIR Intelligence")
+
+                            if revolutionary_features:
+                                st.info(f"🚀 **Revolutionary Features Active:** {' • '.join(revolutionary_features)}")
+
+                            # Performance Improvement Banner
+                            performance_improvement = result.get('performance_improvement', '')
+                            if performance_improvement:
+                                st.success(f"⚡ **Performance Enhancement:** {performance_improvement}")
+
+                            # Success metrics with enhanced display
                             success_metrics = result.get("success_metrics", {})
                             if success_metrics:
-                                st.info(f"✅ Success Rate: Legal={success_metrics.get('legal_analysis', False)}, Cases={success_metrics.get('live_cases', False)}, Overall={success_metrics.get('overall', False)}")
+                                legal_success = success_metrics.get('legal_analysis', False)
+                                cases_success = success_metrics.get('live_cases', False)
+                                overall_success = success_metrics.get('overall', False)
+
+                                success_text = []
+                                success_text.append(f"Legal: {'✅' if legal_success else '❌'}")
+                                success_text.append(f"Cases: {'✅' if cases_success else '❌'}")
+                                success_text.append(f"Overall: {'✅' if overall_success else '❌'}")
+
+                                success_color = "success" if overall_success else "warning"
+                                if success_color == "success":
+                                    st.success(f"🎯 **Success Rate:** {' • '.join(success_text)}")
+                                else:
+                                    st.warning(f"⚠️ **Success Rate:** {' • '.join(success_text)}")
                         
                         st.markdown("---")
                         
@@ -442,10 +485,41 @@ with tab3:
                         grid_tab1, grid_tab2, grid_tab3, grid_tab4 = st.tabs(["🏛️ Legal Compliance", "⚖️ BNS Laws", "🔍 Live Cases", "📝 FIR Intelligence"])
                         
                         with grid_tab1:
-                            st.subheader("🏛️ Grid 1: Legal Compliance Checklist")
+                            st.subheader("🏛️ Grid 1: Legal Compliance - Revolutionary Analysis")
                             compliance_data = result.get("legal_compliance", "No compliance data available")
+
+                            # Parse compliance data for revolutionary features
+                            if "BNS Section" in compliance_data or "BNSS" in compliance_data or "BSA" in compliance_data:
+                                st.success("🚀 **Revolutionary Legal Framework Detected:** BNS 2023, BNSS 2023, BSA 2023")
+
+                            # Check for crime-specific analysis
+                            crime_indicators = ["medical negligence", "corruption", "cyber crime", "financial fraud", "domestic violence"]
+                            detected_crime = None
+                            for crime in crime_indicators:
+                                if crime.lower() in compliance_data.lower():
+                                    detected_crime = crime
+                                    break
+
+                            if detected_crime:
+                                st.info(f"🎯 **Crime-Specific Analysis:** {detected_crime.title()} compliance framework applied")
+
+                            # Display compliance analysis
+                            st.markdown("**📋 Compliance Analysis:**")
                             st.markdown(compliance_data)
-                            
+
+                            # Extract compliance items if structured
+                            compliance_lines = compliance_data.split('\n')
+                            compliance_items = []
+                            for line in compliance_lines:
+                                if any(keyword in line.lower() for keyword in ['status:', 'priority:', 'compliance', 'requirement']):
+                                    compliance_items.append(line.strip())
+
+                            if compliance_items:
+                                st.markdown("**📊 Key Compliance Points:**")
+                                for item in compliance_items[:5]:  # Show top 5
+                                    if item:
+                                        st.write(f"• {item}")
+
                             # Download button
                             st.download_button(
                                 "📥 Download Compliance Report",
@@ -455,10 +529,66 @@ with tab3:
                             )
                         
                         with grid_tab2:
-                            st.subheader("⚖️ Grid 2: BNS Laws & Severity")
+                            st.subheader("⚖️ Grid 2: BNS Laws & Severity - Revolutionary Legal Intelligence")
                             laws_data = result.get("bns_laws", "No laws data available")
+
+                            # Parse for revolutionary legal framework
+                            modern_acts = ["BNS 2023", "BNSS 2023", "BSA 2023", "NDPS", "POCSO", "IT Act", "DV Act"]
+                            detected_acts = []
+                            for act in modern_acts:
+                                if act in laws_data:
+                                    detected_acts.append(act)
+
+                            if detected_acts:
+                                st.success(f"🚀 **Modern Legal Framework:** {', '.join(detected_acts)}")
+
+                            # Extract BNS sections
+                            import re
+                            section_pattern = r'Section\s+(\d+[A-Za-z]*)'
+                            sections = re.findall(section_pattern, laws_data, re.IGNORECASE)
+
+                            if sections:
+                                st.info(f"⚖️ **BNS Sections Identified:** {', '.join(set(sections))}")
+
+                            # Check for severity indicators
+                            severity_indicators = {
+                                "High": ["murder", "death", "life imprisonment", "serious"],
+                                "Medium": ["imprisonment", "fine", "punishment"],
+                                "Low": ["minor", "simple", "bailable"]
+                            }
+
+                            detected_severity = []
+                            for severity, keywords in severity_indicators.items():
+                                if any(keyword in laws_data.lower() for keyword in keywords):
+                                    detected_severity.append(severity)
+
+                            if detected_severity:
+                                severity_color = "error" if "High" in detected_severity else "warning" if "Medium" in detected_severity else "info"
+                                if severity_color == "error":
+                                    st.error(f"🔴 **High Severity Case:** Serious legal implications detected")
+                                elif severity_color == "warning":
+                                    st.warning(f"🟡 **Medium Severity Case:** Standard legal procedures apply")
+                                else:
+                                    st.info(f"🟢 **Low Severity Case:** Minor legal implications")
+
+                            # Display laws analysis
+                            st.markdown("**📜 Legal Analysis:**")
                             st.markdown(laws_data)
-                            
+
+                            # Extract key legal points
+                            laws_lines = laws_data.split('\n')
+                            key_points = []
+                            for line in laws_lines:
+                                if any(keyword in line.lower() for keyword in ['section', 'punishment', 'penalty', 'imprisonment', 'applicable']):
+                                    if len(line.strip()) > 20:  # Filter out short lines
+                                        key_points.append(line.strip())
+
+                            if key_points:
+                                st.markdown("**🎯 Key Legal Points:**")
+                                for point in key_points[:5]:  # Show top 5
+                                    if point:
+                                        st.write(f"• {point}")
+
                             # Download button
                             st.download_button(
                                 "📥 Download Laws Analysis",
@@ -493,19 +623,141 @@ with tab3:
                                 st.warning("⚠️ No live cases data available (check Indian Kanoon API token)")
                         
                         with grid_tab4:
-                            st.subheader("📝 Grid 4: FIR Intelligence")
+                            st.subheader("📝 Grid 4: FIR Intelligence - Revolutionary AI-Powered Analysis")
                             fir_data = result.get("grid_4_fir_intelligence", {})
+
                             if fir_data:
-                                st.markdown("**FIR Draft:**")
-                                st.code(fir_data.get("fir_text", "No FIR draft available."), language="markdown")
-                                st.markdown("**Section Suggestions:**")
-                                st.write(fir_data.get("grid_1_sections", []))
-                                st.markdown("**Completeness Checklist:**")
-                                st.write(fir_data.get("grid_2_completeness", []))
-                                st.markdown("**Best Practices & Tips:**")
-                                st.write(fir_data.get("grid_3_best_practices", []))
+                                # FIR Intelligence Metrics
+                                col1, col2, col3, col4 = st.columns(4)
+                                with col1:
+                                    ai_confidence = fir_data.get("ai_confidence", 0)
+                                    st.metric("🧠 AI Confidence", f"{ai_confidence:.1%}")
+                                with col2:
+                                    sections_count = len(fir_data.get("grid_1_sections", []))
+                                    st.metric("⚖️ Legal Sections", sections_count)
+                                with col3:
+                                    completeness_count = len(fir_data.get("grid_2_completeness", []))
+                                    st.metric("📋 Completeness Items", completeness_count)
+                                with col4:
+                                    practices_count = len(fir_data.get("grid_3_best_practices", []))
+                                    st.metric("💡 Best Practices", practices_count)
+
+                                # Revolutionary Features Detection
+                                crime_type = fir_data.get("crime_type")
+                                if crime_type:
+                                    st.info(f"🎯 **Crime Type Detected:** {crime_type.replace('_', ' ').title()}")
+
+                                # FIR Intelligence Sub-tabs
+                                fir_sub_tab1, fir_sub_tab2, fir_sub_tab3, fir_sub_tab4 = st.tabs([
+                                    "📄 FIR Document", "⚖️ Legal Sections", "📋 Completeness", "💡 Best Practices"
+                                ])
+
+                                with fir_sub_tab1:
+                                    st.markdown("**🚀 AI-Generated FIR Document:**")
+                                    fir_text = fir_data.get("fir_text", "No FIR draft available.")
+                                    st.code(fir_text, language="markdown")
+
+                                    # Download FIR button
+                                    st.download_button(
+                                        "📥 Download FIR Document",
+                                        data=fir_text,
+                                        file_name=f"fir_draft_{case_id}.txt",
+                                        mime="text/plain"
+                                    )
+
+                                with fir_sub_tab2:
+                                    st.markdown("**⚖️ Legal Section Recommendations:**")
+                                    sections = fir_data.get("grid_1_sections", [])
+                                    if sections:
+                                        for i, section in enumerate(sections, 1):
+                                            st.write(f"{i}. {section}")
+                                    else:
+                                        st.info("No legal sections identified")
+
+                                with fir_sub_tab3:
+                                    st.markdown("**📋 Completeness Analysis:**")
+                                    completeness = fir_data.get("grid_2_completeness", [])
+                                    if completeness:
+                                        # Calculate completion statistics
+                                        total_items = len(completeness)
+                                        completed_items = 0
+                                        high_priority = 0
+
+                                        for item in completeness:
+                                            if isinstance(item, dict):
+                                                if item.get("status") == "complete":
+                                                    completed_items += 1
+                                                if item.get("priority") == "high":
+                                                    high_priority += 1
+
+                                        # Display completion metrics
+                                        col1, col2, col3 = st.columns(3)
+                                        with col1:
+                                            completion_rate = (completed_items / total_items * 100) if total_items > 0 else 0
+                                            st.metric("Completion Rate", f"{completion_rate:.0f}%")
+                                        with col2:
+                                            st.metric("High Priority Items", high_priority)
+                                        with col3:
+                                            st.metric("Total Items", total_items)
+
+                                        # Display completeness items
+                                        for item in completeness:
+                                            if isinstance(item, dict):
+                                                field = item.get("field", "Unknown Field")
+                                                status = item.get("status", "unknown")
+                                                priority = item.get("priority", "medium")
+                                                suggestion = item.get("suggestion", "")
+
+                                                # Status emoji
+                                                status_emoji = "✅" if status == "complete" else "⏳" if status == "incomplete" else "❌"
+                                                priority_emoji = "🔴" if priority == "high" else "🟡" if priority == "medium" else "🟢"
+
+                                                with st.expander(f"{status_emoji} {field} ({priority_emoji} {priority.title()})"):
+                                                    st.write(f"**Status:** {status.title()}")
+                                                    st.write(f"**Priority:** {priority.title()}")
+                                                    if suggestion:
+                                                        st.write(f"**Suggestion:** {suggestion}")
+                                            else:
+                                                st.write(f"• {item}")
+                                    else:
+                                        st.info("No completeness analysis available")
+
+                                with fir_sub_tab4:
+                                    st.markdown("**💡 Best Practices & Recommendations:**")
+                                    practices = fir_data.get("grid_3_best_practices", [])
+                                    if practices:
+                                        for i, practice in enumerate(practices, 1):
+                                            # Check if practice contains emoji or special formatting
+                                            if any(emoji in practice for emoji in ['🏥', '👨‍⚕️', '📋', '⚖️', '💻', '🌐', '🔍', '🧪', '👶', '🛡️', '🏠']):
+                                                st.markdown(f"{i}. {practice}")
+                                            else:
+                                                st.write(f"{i}. {practice}")
+                                    else:
+                                        st.info("No best practices available")
+
+                                # Revolutionary Features Summary
+                                st.markdown("---")
+                                st.markdown("**🚀 Revolutionary Features Active:**")
+
+                                revolutionary_features = []
+                                if crime_type:
+                                    revolutionary_features.append(f"🎯 Crime Type Detection: {crime_type.replace('_', ' ').title()}")
+                                if ai_confidence > 0.8:
+                                    revolutionary_features.append(f"🧠 High AI Confidence: {ai_confidence:.1%}")
+                                if sections_count > 5:
+                                    revolutionary_features.append(f"⚖️ Comprehensive Legal Analysis: {sections_count} sections")
+                                if completeness_count > 10:
+                                    revolutionary_features.append(f"📋 Detailed Completeness Check: {completeness_count} items")
+
+                                if revolutionary_features:
+                                    for feature in revolutionary_features:
+                                        st.success(feature)
+                                else:
+                                    st.info("🔄 Standard FIR intelligence mode active")
+
                             else:
                                 st.warning("⚠️ No FIR Intelligence data available.")
+                                st.info("💡 FIR Intelligence requires case context and legal analysis to generate comprehensive results.")
                         
                         # Raw JSON view
                         with st.expander("🔍 View Raw JSON Response"):
