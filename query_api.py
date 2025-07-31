@@ -75,24 +75,81 @@ context_prompt = (
     "If the answer cannot be found in the above context, say 'I don't know based on the provided documents.'"
 )
 
+def get_role_aware_context_prompt(speaker_role: str) -> str:
+    """
+    Generate role-aware context prompts for citizen-officer-AI interaction system
+    """
+
+    if speaker_role == "citizen":
+        return (
+            "You are a legal assistance AI helping citizens understand their rights and legal procedures. "
+            "You are part of a citizen-officer dashboard where officers may review your responses.\n\n"
+            "IMPORTANT CONTEXT:\n"
+            "- You are responding to a CITIZEN who needs legal guidance\n"
+            "- Your response may be reviewed by a police officer before being shown to the citizen\n"
+            "- Provide accurate, helpful, and citizen-friendly legal information\n"
+            "- Use simple language that citizens can understand\n"
+            "- Focus on rights, procedures, and practical guidance\n\n"
+            "Here are the relevant legal documents for context:\n"
+            "{context_str}\n\n"
+            "Instructions:\n"
+            "1. Answer the citizen's question clearly and helpfully\n"
+            "2. Base your response on the provided legal documents\n"
+            "3. Use simple, non-technical language\n"
+            "4. If unsure, say 'I don't know based on the provided documents'\n"
+            "5. Encourage consulting legal professionals for complex matters"
+        )
+
+    elif speaker_role == "officer":
+        return (
+            "You are a legal assistance AI in a citizen-officer dashboard system. "
+            "A POLICE OFFICER is now providing feedback or instructions about your previous response to a citizen.\n\n"
+            "IMPORTANT CONTEXT:\n"
+            "- The speaker is now a POLICE OFFICER, not the citizen\n"
+            "- The officer may be asking you to modify, improve, or regenerate your previous response\n"
+            "- The officer's goal is to ensure the citizen gets the best possible legal guidance\n"
+            "- You should be collaborative and responsive to the officer's expertise\n"
+            "- The final response will still be for the citizen, so maintain citizen-friendly language\n\n"
+            "Here are the relevant legal documents for context:\n"
+            "{context_str}\n\n"
+            "Instructions:\n"
+            "1. Listen carefully to the officer's feedback or instructions\n"
+            "2. If asked to modify a response, incorporate the officer's suggestions\n"
+            "3. If asked to regenerate, create a new response addressing the officer's concerns\n"
+            "4. Maintain accuracy and base responses on provided legal documents\n"
+            "5. Keep the final response citizen-friendly, even when taking officer input\n"
+            "6. Acknowledge the officer's expertise and collaborate effectively"
+        )
+
+    else:
+        # Default fallback
+        return context_prompt
+
 # --- Memory management for multi-user chat ---
 from typing import Dict
 from threading import Lock
+import uuid
+import re
+
 
 # session_id -> ChatMemoryBuffer
 chat_memories: Dict[str, ChatMemoryBuffer] = {}
 chat_memories_lock = Lock()
 
-def get_citizen_chat_engine(session_id: str):
+def get_citizen_chat_engine(session_id: str, speaker_role: str = "citizen"):
     with chat_memories_lock:
         if session_id not in chat_memories:
             chat_memories[session_id] = ChatMemoryBuffer.from_defaults(token_limit=3900)
         memory = chat_memories[session_id]
+
+    # Role-aware context prompt
+    role_aware_prompt = get_role_aware_context_prompt(speaker_role)
+
     return index.as_chat_engine(
         chat_mode="condense_question",
         memory=memory,
         llm=llm,
-        context_prompt=context_prompt,
+        context_prompt=role_aware_prompt,
         verbose=False,
     )
 
@@ -1103,9 +1160,130 @@ class ChatRequest(BaseModel):
 class CitizenChatRequest(BaseModel):
     session_id: str
     message: str
+    speaker_role: str = "citizen"  # "citizen" or "officer"
+    officer_instruction_type: str = None  # "modify", "regenerate", "approve", "reject"
+    original_response_id: str = None  # Reference to response being modified
 
 class CitizenChatResponse(BaseModel):
     answer: str
+    response_id: str  # Unique ID for tracking responses
+    speaker_role: str  # Who this response is intended for
+    requires_officer_review: bool = False  # Flag for officer moderation
+    confidence_score: float = 0.0  # AI confidence in response
+
+# Role-aware processing functions
+def process_role_based_message(request: CitizenChatRequest) -> str:
+    """
+    Process messages based on speaker role and instruction type
+    """
+    if request.speaker_role == "citizen":
+        # Standard citizen query - no modification needed
+        return request.message
+
+    elif request.speaker_role == "officer":
+        # Officer is providing feedback/instructions
+        if request.officer_instruction_type == "modify":
+            return f"""
+OFFICER INSTRUCTION: Please modify the previous response based on this feedback:
+{request.message}
+
+Please provide an improved response that addresses the officer's concerns while maintaining citizen-friendly language.
+"""
+
+        elif request.officer_instruction_type == "regenerate":
+            return f"""
+OFFICER INSTRUCTION: Please regenerate the response with these specific requirements:
+{request.message}
+
+Please create a completely new response that incorporates the officer's guidance.
+"""
+
+        elif request.officer_instruction_type == "approve":
+            return f"""
+OFFICER FEEDBACK: The officer has approved the previous response with this note:
+{request.message}
+
+Please acknowledge the approval and provide any additional clarification if needed.
+"""
+
+        elif request.officer_instruction_type == "reject":
+            return f"""
+OFFICER FEEDBACK: The officer has concerns about the previous response:
+{request.message}
+
+Please provide a corrected response that addresses these concerns.
+"""
+
+        else:
+            # General officer input
+            return f"""
+OFFICER INPUT: {request.message}
+
+Please respond appropriately to the officer's input while keeping the citizen's needs in mind.
+"""
+
+    else:
+        # Fallback for unknown roles
+        return request.message
+
+def should_require_officer_review(request: CitizenChatRequest, response: str) -> bool:
+    """
+    Determine if a response should be flagged for officer review
+    """
+    # Always require review for citizen queries (not officer instructions)
+    if request.speaker_role == "citizen":
+        # Check for sensitive topics that might need officer review
+        sensitive_keywords = [
+            "arrest", "detention", "custody", "bail", "warrant",
+            "search", "seizure", "interrogation", "confession",
+            "rights violation", "police misconduct", "complaint"
+        ]
+
+        message_lower = request.message.lower()
+        response_lower = response.lower()
+
+        # Flag if sensitive keywords are present
+        for keyword in sensitive_keywords:
+            if keyword in message_lower or keyword in response_lower:
+                return True
+
+        # Flag if response is uncertain
+        uncertainty_indicators = [
+            "i don't know", "unclear", "uncertain", "may vary",
+            "consult a lawyer", "seek legal advice"
+        ]
+
+        for indicator in uncertainty_indicators:
+            if indicator in response_lower:
+                return True
+
+    # Officer instructions don't need additional review
+    return False
+
+def calculate_response_confidence(response: str) -> float:
+    """
+    Calculate confidence score for AI response
+    """
+    # Simple confidence calculation based on response characteristics
+    confidence = 0.8  # Base confidence
+
+    # Reduce confidence for uncertainty indicators
+    uncertainty_phrases = [
+        "i don't know", "unclear", "uncertain", "may vary",
+        "depends on", "could be", "might be", "possibly"
+    ]
+
+    response_lower = response.lower()
+    uncertainty_count = sum(1 for phrase in uncertainty_phrases if phrase in response_lower)
+    confidence -= (uncertainty_count * 0.1)
+
+    # Increase confidence for specific legal references
+    legal_references = ["section", "act", "bns", "bnss", "bsa", "article"]
+    reference_count = sum(1 for ref in legal_references if ref in response_lower)
+    confidence += min(reference_count * 0.05, 0.2)  # Max boost of 0.2
+
+    # Ensure confidence stays within bounds
+    return max(0.1, min(1.0, confidence))
 
 class ChatResponse(BaseModel):
     answer: str
@@ -1199,9 +1377,32 @@ from parsers import ResponseParser
 @app.post("/citizen_chat", response_model=CitizenChatResponse)
 def citizen_chat_endpoint(request: CitizenChatRequest):
     try:
-        chat_engine = get_citizen_chat_engine(request.session_id)
-        response = chat_engine.chat(request.message)
-        return CitizenChatResponse(answer=str(response))
+        # Get role-aware chat engine
+        chat_engine = get_citizen_chat_engine(request.session_id, request.speaker_role)
+
+        # Process message based on speaker role and instruction type
+        processed_message = process_role_based_message(request)
+
+        # Generate response
+        response = chat_engine.chat(processed_message)
+
+        # Generate unique response ID for tracking
+        import uuid
+        response_id = str(uuid.uuid4())
+
+        # Determine if officer review is needed
+        requires_review = should_require_officer_review(request, str(response))
+
+        # Calculate confidence score
+        confidence = calculate_response_confidence(str(response))
+
+        return CitizenChatResponse(
+            answer=str(response),
+            response_id=response_id,
+            speaker_role=request.speaker_role,
+            requires_officer_review=requires_review,
+            confidence_score=confidence
+        )
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
